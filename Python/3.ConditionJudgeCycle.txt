@@ -1,0 +1,101 @@
+A.条件判断
+a.if语句（要有缩进！）
+age = 20
+if age >=18:
+	print 'your age is',age
+	print'adult'
+
+b.if...else语句
+age = 15
+if age >=18:
+	print 'your age is',age
+	print 'adult'
+else:
+	print 'your age is',age
+	print 'teenage'
+
+c.elif语句（else...if语句简写）
+age = 3
+if age >=18:
+	print 'your age is',age
+	print 'adult'
+elif age >=6:
+	print 'your age is',age
+	print 'teenage'
+else:
+	print 'kid'
+#完整形态
+if <条件判断1>:
+    <执行1>
+elif <条件判断2>:
+    <执行2>
+elif <条件判断3>:
+    <执行3>
+else:
+    <执行4>
+
+d.if语句是自上往下判断的，若在某个语句判断True,则自动忽略后面的elif和else语句......
+
+e.if语句可以简写(只要x为非零数，非空字符串，非空list,就判断为True,否则为False)
+if x:
+	print True
+
+B.循环
+两种，一种为for...in，另外一种为while...
+a.for...in
+依次把list或tuple中的每个元素迭代出来，然后执行循环缩进块语句
+countries = ['CHINA','US','JAPAN','UK']
+for country in countries:
+	print country
+
+CHINA
+US
+JAPAN
+UK
+
+#未缩进
+sum = 0
+for x in [1,2,3,4,5,6,7,8,9,10]:
+	sum +=x
+	print sum
+
+1
+3
+6
+10
+15
+21
+28
+36
+45
+55
+#缩进
+#累加
+sum = 0（）
+for x in [1,2,3,4,5,6,7,8,9,10]:
+	sum +=x
+print sum
+
+55
+
+Python提供了一个range()函数，可生成整数序列
+>>> range(5)
+[0, 1, 2, 3, 4]
+range(101)生成0-100的整数
+sum = 0
+for x in range(101):
+	sum = sum +x 
+print sum
+
+5050
+
+b.while循环
+sum = 0
+n=1
+while n<=100:
+	sum +=n
+	n +=2
+print sum	
+
+
+	

@@ -1,0 +1,98 @@
+A.直接运行文件
+1.在文件首行添加:#!/usr/bin/env python
+2.在终端中运行:chmod a+x file.py
+3.接着输入:"./file.py"
+
+B.终端中实现多行输入
+1.在行末添加符号后Enter:'\'
+2.终端显示‘...’表成功.
+
+C.多字符串可使用逗号‘,’实现拼接，逗号处会以空格表现.若无逗号则字符串会拼接在一起.
+>>> print'China is','a country','and my hometown!'
+    China is a country and my hometown!
+>>> print'China is''a country''and my hometown!'
+    China isa countryand my hometown!
+
+D.实现输入使用raw_input().
+>>> name = raw_input('Please enter your name here:')
+Please enter your name here:NIPPION
+
+E.数据类型依旧：
+1.整数,支持各进制数
+2.浮点数（1.23x10^9=1.23e9,1.2×10^-5=1.2e-5）
+3.布尔类型：True,False;可以使用and or not进行运算.
+4.字符串:记得要加引号’‘
+5.空值：None
+6.查看字符类型使用type
+>>> a=10
+>>> print a ,type(a)
+10 <type 'int'>
+
+F.
+1.转义字符:‘\’(防歧义)
+>>> print 'I\'m learning\nPython.'
+I'm learning
+2.r''表示''内部的字符串默认不转义
+>>> print r'///t///'
+///t///
+3.'''...'''可表示多行输入：
+>>> print'''line1
+... line2
+... line3
+... line4'''
+line1
+line2
+line3
+line4
+
+G.
+1.相较于C语言，Python可以在同一程序中多次赋值同一变量.
+2.习惯上定义常量用大写，如PI，此点同C.
+
+H.字符串转换
+1.转换成ASCII，使用ord()和chr()函数：
+>>> ord('A')
+65
+>>> chr(65)
+'A'
+2.转换成Unicode编码,使用u'...':
+>>> print u'中外'
+中外
+>>> u'中'
+u'\u4e2d'(\u后面为十六进制编码)
+3.字符串'xxx'为ASCII编码，可看成UTF-8编码，u'xxx'看成Unicode编码
+4.把u'xxx'转换成UTF-8编码的'xxx'使用encode('utf-8')方法：
+>>> u'ABC'.encode('utf-8')
+'ABC'
+>>> u'中文'.encode('utf-8')
+'\xe4\xb8\xad\xe6\x96\x87'
+英文字符转换后表示的UTF-8值跟Unicode值相等，但占用的存储空间不同，一个中文字符转换后1个Unicode字符变为3个UTF-8字符.
+5.len()函数可返回字符串长度：
+>>> len(u'ABC')
+3
+>>> len('ABC')
+3
+>>> len(u'中文')
+2
+>>> len('\xe4\xb8\xad\xe6')
+4
+6.把UTF-8编码'xxx'转换成Unicode编码u'xxx'可用decode('utf-8')方法
+>>> 'abc'.decode('utf-8')
+u'abc'
+>>> '\xe4\xb8\xad\xe6\x96\x87'.decode('utf-8')
+u'\u4e2d\u6587'
+>>> print'\xe4\xb8\xad\xe6\x96\x87'.decode('utf-8')
+中文
+7.在编写python文件时前两行为
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+I.字符串格式：%s,%d,%f,%x(十六进制)
+>>> 'Hi, %s, you have $%d.' % ('Michael', 1000000)
+'Hi, Michael, you have $1000000.'
+>>> '%2d-%02d' % (3, 1)
+' 3-01'
+>>> u'Hi, %s' % u'Michael'
+u'Hi, Michael'
+>>> 'growth rate: %d %%' % 7
+'growth rate: 7 %'

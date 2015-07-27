@@ -1,0 +1,94 @@
+A.列表list
+1.类似于C语言中的数组，可使用len()函数获得list中元素的个数，从0开始，也可从最后一个数开始（计为-1），最后一个数也可用list[len(list)-1]表示，以此类推
+>>> classroom=['mike','jack','nippion']
+>>> classroom[0]
+'mike'
+>>> classroom[-1]
+'nippion'
+>>> len(classroom)
+3
+>>> classroom
+['mike', 'jack', 'nippion']
+>>> classroom[len(classroom)-1]
+'nippion'
+2.对list的一些操作
+a.添加元素list.append('x'),该操作添加到末尾
+>>> classroom.append('CHINA')
+>>> classroom
+['mike', 'jack', 'nippion', 'CHINA']
+
+b.使用list.insert(n,'x')实现插入,n为索引号，从0开始
+>>> classroom.insert(1,'Japan')
+>>> classroom
+['mike', 'Japan', 'jack', 'nippion', 'CHINA']
+
+c.删除行末尾的元素，使用list.pop()
+>>> classroom.pop()
+'CHINA'
+>>> classroom
+['mike', 'Japan', 'jack', 'nippion']
+
+d.删除指定位置list.pop(i)
+>>> classroom.pop(2)
+'jack'
+>>> classroom
+['mike', 'Japan', 'nippion']
+
+e.更换某个元素，直接赋值给对应的索引位置
+>>> classroom[1]='US'
+>>> classroom
+['mike', 'US', 'nippion']
+
+f.list中可包含不同类型元素
+>>> L=['abc',123,True]
+>>> L
+['abc', 123, True]
+
+g.list中可包含另外一个list
+>>> L=['Python','C',['Java','C++'],'Ruby']
+>>> L
+['Python', 'C', ['Java', 'C++'], 'Ruby']
+>>> len(L)
+4
+
+h.多维数组
+>>> s=['Python','C','Ruby']
+>>> p=['Java','C++']
+>>> L=[s,p]
+>>> L
+[['Python', 'C', 'Ruby'], ['Java', 'C++']]
+>>> L[1][1]
+'C++'
+
+i.空列表
+>>> L=[]
+>>> len(L)
+0
+
+B.元组tuple
+a.tuple同list类似，不过tuple中元素一旦初始化后就不可被修改，没有append ,insert,pop等操作,使用tuple更加安全
+>>> classmates = ('china','japan','us')
+>>> classmates
+('china', 'japan', 'us')
+
+b.定义元组的时候元素就要被确定
+>>> t = (1,2)
+>>> t
+(1, 2)
+>>> t = ()  #定义空元祖
+>>> t
+()
+>>> t = (1,)  #定义一个元组的时候需要在后面添加‘,’防歧义
+>>> t
+(1,)
+
+c.可变的tuple,元组是指向不变，为保证安全，可使每个元素也不变
+>>> L = ('CHINA','US',['JAPAN','UK'])
+>>> L[2][0]='INDIA'
+>>> L[2][1]='FRANCE'
+>>> L
+('CHINA', 'US', ['INDIA', 'FRANCE'])
+
+
+
+
