@@ -58,4 +58,6 @@ $ git push origin master
 
 F.如果与仓库冲突的话则用git pull -- force解决，不过慎用，会删除之前分支上面的东西。
 
+H.git pull origin master
+
 
