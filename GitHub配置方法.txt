@@ -1,0 +1,60 @@
+1.配置单人Github
+A.创建本地库
+  1.mkdir GitHub(folder)
+  2.cd GitHub
+  3.pwd
+  4.git init
+
+B.创建SSH并加入github账户
+1.build a SSH key：$ ssh-keygen -t rsa -C "youremail@example.com"
+2.github account setting ———— SSH KEYS ———— id_rsa.pub(cat id_rsa.pub)
+
+C.与仓库建立关系
+1.git remote add origin git@github.com:Setsuna0728（github账户名称）/learngit（仓库）.git
+2.git push -u origin master
+3.git push origin master
+
+D.推送全过程
+1.git add file
+2.git commit -m "introduction to the file"
+3.git push origin master
+
+
+2.多人账户登录github
+A：为工作账号生成SSH Key
+$ ssh-keygen -t rsa -C "your-email-address"
+#存储key的时候，不要覆盖现有的id_rsa，使用一个新的名字，比如id_rsa_work
+ 
+B：把id_rsa_work.pub加到你的work账号上
+
+C：把该key加到ssh agent上。由于不是使用默认的.ssh/id_rsa，所以你需要显示告诉ssh agent你的新key的位置
+$ ssh-add ~/.ssh/id_rsa_work
+# 可以通过ssh-add -l来确认结果
+ 
+D：配置.ssh/config
+$ vi .ssh/config
+# 加上以下内容
+#default github
+Host github.com
+  HostName github.com
+  IdentityFile ~/.ssh/id_rsa
+
+Host github_work
+  HostName github.com
+  IdentityFile ~/.ssh/id_rsa_work
+若没有config文件，则创建一个：touch config......
+ 
+
+E：这样的话，你就可以通过使用github.com别名github_work来明确说你要是使用id_rsa_work的SSH key来连接github，即使用工作账号进行操作。
+
+#本地建库
+$ git init
+$ git commit -am "first commit'
+ 
+#push到github上去
+$ git remote add origin git@github_work:xxxx/test.git
+$ git push origin master
+
+F.如果与仓库冲突的话则用git pull -- force解决，不过慎用，会删除之前分支上面的东西。
+
+
