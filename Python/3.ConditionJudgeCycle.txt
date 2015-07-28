@@ -1,5 +1,5 @@
 A.条件判断
-a.if语句（要有缩进！）
+a.if语句（要有缩进！4个空格符）
 age = 20
 if age >=18:
 	print 'your age is',age
