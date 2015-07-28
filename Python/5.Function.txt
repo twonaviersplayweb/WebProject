@@ -1,0 +1,291 @@
+A.调用函数
+1.abs()函数    #绝对值函数，查看函数信息使用如：help(abs)
+>>> abs(100)    #若传入参数数量不对或者参数类型不对会报TypeError错误，如abs(1,2),abs('a')
+100
+>>> abs(-20)
+20
+
+2.cmp(x,y)    #比较函数，若x<y，返回-1，若x==y，返回0，若x>y，返回1
+>>> cmp(1,2)
+-1
+>>> cmp(2,2)
+0
+>>> cmp(2,1)
+1
+
+B.数据类型转换
+>>> int('123')
+123
+>>> int(12.32)
+12
+>>> float('12.34')
+12.34
+>>> float(12.34)
+12.34
+>>> float(12)
+12.0
+>>> str(1.23)
+'1.23'
+>>> str('1.23')
+'1.23'
+>>> unicode(100)
+u'100'
+>>> bool(1)
+True
+>>> bool('')
+False
+
+函数名是指向一个函数对象的引用，可以给把函数名赋给一个变量，相当于给函数起了一个别名
+>>> a = abs
+>>> a(-1)
+1
+
+C.定义函数
+定义一个函数要使用def语句，依次写出函数名、括号、括号中的参数和冒号:，然后，在缩进块中编写函数体，函数的返回值用return语句返回,若没有return，则返回None，reutrn None简写为return
+x = int(raw_input('Please enter an integer to the x :'))    #要记得给输入的参数定义类型
+def my_abs(x):
+	if x >0 :
+		return x
+	else :
+		return -x
+print my_abs(x)	
+print x		
+
+pass作为占位符，用以还未想好写什么函数代码，用pass先替代下,也可以用在其他语句下
+if age >= 18:
+		pass
+
+D.参数检查
+函数无法自己检查出参数类型出错的程序，内置函可以检查出错误，所以需要对自定义函数进行数据类型检查x = int(raw_input('Please enter an integer to the x :'))
+x = raw_input('Please enter an integer to the x :')    #推荐直接在输入时就定义参数类型
+def my_abs(x):
+	if  not isinstance(x,(int,float)):
+		raise TypeError('bad operans type')
+	if x >0 :
+		return x
+	else :
+		return -x
+print my_abs(x)
+print x		
+
+E.返回多个值
+import math
+def move(x, y, setp, angle=0):
+	nx = x + setp *math.cos(angle)
+	ny = y - setp *math.sin(angle)
+	return nx, ny
+x, y = move(100, 100,60,math.pi / 6)    
+print x, y
+151.961524227 70.0
+
+若改为
+r = move(100, 100,60,math.pi / 6)    #故python返回多值是tuple
+print r
+(151.96152422706632, 70.0)
+
+F.函数的参数
+1.默认参数
+def power(x):    #计算x的平方
+	return x*x
+print power(5), power(15)
+25 225
+
+2.变种参数
+def power(x, n):    #计算x的n次方
+	s = 1
+	while n > 0:
+		n = n - 1
+		s = s * x
+	return s
+print power(5, 2), power(5, 3)
+25 125
+
+3.混搭
+def power(x, n = 2):    #计算x的n次方,n>2时必须明确传入n的值
+	s = 1
+	while n > 0:
+		n = n - 1
+		s = s * x
+	return s
+print power(5), power(5, 2)，power(5, 3)
+25 25 125
+
+4.设置默认参数时，有几点要注意：
+
+一是必选参数在前，默认参数在后，否则Python的解释器会报错；
+
+二是如何设置默认参数。
+
+当函数有多个参数时，把变化大的参数放前面，变化小的参数放后面。变化小的参数就可以作为默认参数。
+
+使用默认参数有什么好处？最大的好处是能降低调用函数的难度。
+
+5.若以学生注册为例
+def enroll(name, gender):    #姓名&性别
+	print 'Name:', name
+	print 'Gender:', gender
+print enroll('Sara', 'F')
+print enroll('Lee' ,'M')
+Name: Sara
+Gender: F
+None    #为什么会出现None
+Name: Lee
+Gender: M
+None
+
+def enroll(name, gender, age = 6, city = 'Beijing'):    #姓名&性别&年龄&城市
+	print 'Name:', name
+	print 'Gender:', gender
+	print 'Age:', age
+	print 'City:', city
+print enroll('Sara', 'F')
+print enroll('Lee' ,'M')
+print enroll('Bob', 'M', 7)
+print enroll('Adam', 'M', city = 'Tianjin')    #当不按顺序提供部分默认参数时，需要把参数名写上
+Name: Sara
+Gender: F
+Age: 6
+City: Beijing
+None
+Name: Lee
+Gender: M
+Age: 6
+City: Beijing
+None
+Name: Bob
+Gender: M
+Age: 7
+City: Beijing
+None
+Name: Adam
+Gender: M
+Age: 6
+City: Tianjin
+None
+
+6.默认参数必须是不可变对象
+def add_end(L = []):
+	L.append('END')
+	return L
+print add_end([1,2,3])
+print add_end(['x','y','z'])
+add_end()
+add_end()
+print add_end()
+[1, 2, 3, 'END']
+['x', 'y', 'z', 'END']
+['END', 'END', 'END']
+Python函数在定义的时候，默认参数L的值就被计算出来了，即[]，因为默认参数L也是一个变量，它指向对象[]，每次调用该函数，如果改变了L的内容，则下次调用时，默认参数的内容就变了，不再是函数定义时的[]了。
+
+def add_end(L = None):
+	if L is None:
+		L = []
+	L.append('END')
+	return L
+print add_end([1,2,3])
+print add_end(['x','y','z'])
+add_end()
+add_end()
+print add_end()
+[1, 2, 3, 'END']
+['x', 'y', 'z', 'END']
+['END']
+
+7.可变参数
+def calc(numbers):    
+	sum = 0
+	for n in numbers:
+		sum = sum + n * n
+	return sum	
+print calc([1,2,3])    #调用时需先组装出一个list或者tuple
+print calc((1,3,5,7))
+14
+84
+
+def calc(*numbers):    #定义可变参数，在参数前加*号即可,参数number接收到的是tuple,调用时可传入任意个参数，包括0个参数
+	sum = 0
+	for n in numbers:
+		sum = sum + n * n
+	return sum	
+print calc(1,2,3)
+print calc(1,3,5,7)
+
+>>> nums = [1, 2, 3]    #存在一个list或者tuple，调用可变参数
+>>> calc(nums[0], nums[1], nums[2])
+14
+>>> nums = [1, 2, 3]    #直接把list或者tuple元素变成可变参数传入
+>>> calc(*nums)
+14
+
+8.关键字参数
+关键字参数允许传入0个或任意个含参数名的参数，这些关键字参数在函数内部自动组装为一个dict
+def person(name, age, **kw):
+	print 'name:', name, 'age:',age, 'other:',kw
+print person('Michael', 30)
+print person('Bob', 35, city = 'Beijing')
+print person('Adam', 45, gender = 'M', job = 'Engineer' )
+name: Michael age: 30 other: {}
+None
+name: Bob age: 35 other: {'city': 'Beijing'}
+None
+name: Adam age: 45 other: {'gender': 'M', 'job': 'Engineer'}
+None
+
+>>> kw = {'city': 'Beijing', 'job': 'Engineer'}
+>>> person('Jack', 24, city=kw['city'], job=kw['job'])
+name: Jack age: 24 other: {'city': 'Beijing', 'job': 'Engineer'}
+>>> kw = {'city': 'Beijing', 'job': 'Engineer'}
+>>> person('Jack', 24, **kw)
+name: Jack age: 24 other: {'city': 'Beijing', 'job': 'Engineer'}
+
+9.参数组合
+在Python中定义函数，可以用必选参数、默认参数、可变参数和关键字参数，这4种参数都可以一起使用，或者只用其中某些，但是请注意，参数定义的顺序必须是：必选参数、默认参数、可变参数和关键字参数。
+def func(a, b, c = 0, *args, **kw):
+	print 'a = ', a, 'b = ', b, 'c = ', c,'args = ', args, 'kw = ', kw
+print func(1, 2)
+print func(1, 2, c = 3)
+print func(1, 2, 3, 'a', 'b')
+print func(1, 2, 3, 'a', 'b', x=99)
+a =  1 b =  2 c =  0 args =  () kw =  {}
+None
+a =  1 b =  2 c =  3 args =  () kw =  {}
+None
+a =  1 b =  2 c =  3 args =  ('a', 'b') kw =  {}
+None
+a =  1 b =  2 c =  3 args =  ('a', 'b') kw =  {'x': 99}
+None
+
+>>> args = (1, 2, 3, 4)    #通过一个tuple和dict，也可以调用该函数
+>>> kw = {'x': 99}
+>>> func(*args, **kw)
+a = 1 b = 2 c = 3 args = (4,) kw = {'x': 99}
+
+G.递归函数
+def fact(n):    #n!
+	if n == 1:
+		return 1
+	return n * fact(n - 1)
+print fact(1)
+print fact(5)
+1
+120
+递归函数的优点是定义简单，逻辑清晰。理论上，所有的递归函数都可以写成循环的方式，但循环的逻辑不如递归清晰。
+使用递归函数需要注意防止栈溢出。在计算机中，函数调用是通过栈（stack）这种数据结构实现的，每当进入一个函数调用，栈就会加一层栈帧，每当函数返回，栈就会减一层栈帧。由于栈的大小不是无限的，所以，递归调用的次数过多，会导致栈溢出。fact(1000)会出现栈溢出错误，RuntimeError: maximum recursion depth exceeded
+解决递归调用栈溢出的方法是通过尾递归优化，事实上尾递归和循环的效果是一样的，所以，把循环看成是一种特殊的尾递归函数也是可以的。
+尾递归是指，在函数返回的时候，调用自身本身，并且，return语句不能包含表达式。这样，编译器或者解释器就可以把尾递归做优化，使递归本身无论调用多少次，都只占用一个栈帧，不会出现栈溢出的情况。
+
+def fact(n):
+	return fact_iter(n, 1)
+def fact_iter(num, product):
+	if num == 1:
+		return product
+	return fact_iter(num - 1, num *product)
+print fact_iter(5, 1)
+print fact_iter(500,1)
+120
+fact_iter(500,1)太长不贴这里了
+
+
+
+	
+
