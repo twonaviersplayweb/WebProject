@@ -97,5 +97,16 @@ while n<=100:
 	n +=2
 print sum	
 
+C.raw_input()读取的内容永远以字符串的形式返回，若要以数字返回，则需要字符转换
+>>> birth = raw_input()
+1982
+>>> birth
+'1982'
+>>> birth < 2000
+False
+>>> birth = int(raw_input('birth:'))
+birth:1982
+>>> birth < 2000
+True
 
 	
