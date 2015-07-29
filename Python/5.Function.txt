@@ -128,7 +128,7 @@ print enroll('Sara', 'F')
 print enroll('Lee' ,'M')
 Name: Sara
 Gender: F
-None    #为什么会出现None
+None    #为什么会出现None,因为调用的时候多了一个print
 Name: Lee
 Gender: M
 None
@@ -138,30 +138,26 @@ def enroll(name, gender, age = 6, city = 'Beijing'):    #姓名&性别&年龄&�
 	print 'Gender:', gender
 	print 'Age:', age
 	print 'City:', city
-print enroll('Sara', 'F')
-print enroll('Lee' ,'M')
-print enroll('Bob', 'M', 7)
-print enroll('Adam', 'M', city = 'Tianjin')    #当不按顺序提供部分默认参数时，需要把参数名写上
+enroll('Sara', 'F')
+enroll('Lee' ,'M')
+enroll('Bob', 'M', 7)
+enroll('Adam', 'M', city = 'Tianjin')    #当不按顺序提供部分默认参数时，需要把参数名写上
 Name: Sara
 Gender: F
 Age: 6
 City: Beijing
-None
 Name: Lee
 Gender: M
 Age: 6
 City: Beijing
-None
 Name: Bob
 Gender: M
 Age: 7
 City: Beijing
-None
 Name: Adam
 Gender: M
 Age: 6
 City: Tianjin
-None
 
 6.默认参数必须是不可变对象
 def add_end(L = []):
@@ -221,15 +217,12 @@ print calc(1,3,5,7)
 关键字参数允许传入0个或任意个含参数名的参数，这些关键字参数在函数内部自动组装为一个dict
 def person(name, age, **kw):
 	print 'name:', name, 'age:',age, 'other:',kw
-print person('Michael', 30)
-print person('Bob', 35, city = 'Beijing')
-print person('Adam', 45, gender = 'M', job = 'Engineer' )
+person('Michael', 30)
+person('Bob', 35, city = 'Beijing')
+person('Adam', 45, gender = 'M', job = 'Engineer' )
 name: Michael age: 30 other: {}
-None
 name: Bob age: 35 other: {'city': 'Beijing'}
-None
 name: Adam age: 45 other: {'gender': 'M', 'job': 'Engineer'}
-None
 
 >>> kw = {'city': 'Beijing', 'job': 'Engineer'}
 >>> person('Jack', 24, city=kw['city'], job=kw['job'])
@@ -242,18 +235,14 @@ name: Jack age: 24 other: {'city': 'Beijing', 'job': 'Engineer'}
 在Python中定义函数，可以用必选参数、默认参数、可变参数和关键字参数，这4种参数都可以一起使用，或者只用其中某些，但是请注意，参数定义的顺序必须是：必选参数、默认参数、可变参数和关键字参数。
 def func(a, b, c = 0, *args, **kw):
 	print 'a = ', a, 'b = ', b, 'c = ', c,'args = ', args, 'kw = ', kw
-print func(1, 2)
-print func(1, 2, c = 3)
-print func(1, 2, 3, 'a', 'b')
-print func(1, 2, 3, 'a', 'b', x=99)
+func(1, 2)
+func(1, 2, c = 3)
+func(1, 2, 3, 'a', 'b')
+func(1, 2, 3, 'a', 'b', x=99)
 a =  1 b =  2 c =  0 args =  () kw =  {}
-None
 a =  1 b =  2 c =  3 args =  () kw =  {}
-None
 a =  1 b =  2 c =  3 args =  ('a', 'b') kw =  {}
-None
 a =  1 b =  2 c =  3 args =  ('a', 'b') kw =  {'x': 99}
-None
 
 >>> args = (1, 2, 3, 4)    #通过一个tuple和dict，也可以调用该函数
 >>> kw = {'x': 99}
