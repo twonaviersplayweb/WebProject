@@ -38,7 +38,7 @@ print [n * (n+1) for n in range(1,10)]
 ```
 
 > 5.生成器:有两种方式，一种是将[]变成(),生成器中的元素需要通过for循环遍历出来，第二种是中while循环中将print换成yield
-```
+```python
 def fib(max):
 	n, a, b = 0, 0, 1
 	while n < max:
@@ -72,7 +72,7 @@ print fib(6)
 >1.主要学习了返回函数，闭包，匿名函数，装饰器，偏函数
 
 >2.闭包：返回函数的延伸，程序不返回结果，返回函数，通过多层嵌套（2层到3层合适），逐层返回函数，返回函数不要引用循环变量
-```
+```python
 def count():
 	fs = []
 	for i in range(1,4):
@@ -87,7 +87,7 @@ print f1(), f2(), f3()
 ```
 >3.匿名函数lambda，使用范围不广
 >4.装饰器：用来在代码运行其间增加功能，通过多层嵌套，顶层函数使用@元素来调用次级函数
-```
+```python
 def los(text):
 	def decorator(func):
 		@functools.wraps(func)
@@ -98,7 +98,7 @@ def los(text):
 	return decorator
 ```
 >5.偏函数：引用functools.partical功能来固定函数中的一些参数，并返回一个新的函数，来使函数变得更加简单，接收函数对象，可变参数，**kw等三个变量
-```
+```python
 int2 = functools.partial(int, base=2)
 print int2('1000000')
 print int2('1010101')
