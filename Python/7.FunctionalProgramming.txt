@@ -131,6 +131,160 @@ print sorted(['bob', 'about', 'Zoo', 'Credit'], cmp_ignore_case)
 
 B.返回函数
 1.函数作为返回值
+def calc_sum(*args):    #普通的加法运算
+	ax = 0
+	for n in args:
+		ax = ax +n
+	print ax
+
+calc_sum(1,2,3)
+6
+
+def lazy_sum(*args):    #不返回求和结果，返回求和函数
+	def sum():
+		ax = 0
+		for n in args:
+			ax = ax +n
+		return ax
+	return sum
+f = lazy_sum(1,3,5,7,9)    #调用的是求和函数
+print f
+print f()
+<function sum at 0x1771d70>
+25
+在函数lazy_sum中又定义了函数sum，并且，内部函数sum可以引用外部函数lazy_sum的参数和局部变量，当lazy_sum返回函数sum时，相关参数和变量都保存在返回的函数中，这种程序结构称为“闭包（Closure）“
+当调用lazy_sum()时，每次调用都会返回一个新的函数，即使传入相同的参数
+返回的函数在其定义内部引用了局部变量args，当一个函数返回了一个函数后，其内部的局部变量还被新函数引用
+
+2.闭包
+def count():
+	fs = []
+	for i in range(1,4):
+		def f():
+			return i * i
+		fs.append(f)
+	return fs
+f1 ,f2, f3 = count() 
+print f1(), f2(), f3()
+9 9 9    #返回的函数引用了变量i，但它并非立刻执行。等到3个函数都返回时，它们所引用的变量i已经变成了3，因此最终结果为9
+
+返回闭包时牢记的一点就是：返回函数不要引用任何循环变量，或者后续会发生变化的变量
+def count():
+	fs = []
+	for i in range(1,4):
+		def f(j):
+			def g():
+				return j *j
+			return g
+		fs.append(f(i))
+	return  fs
+f1, f2, f3 = count()
+print f1(), f2(), f3()
+1 4 9    #如果一定要引用循环变量怎么办？方法是再创建一个函数，用该函数的参数绑定循环变量当前的值，无论该循环变量后续如何更改，已绑定到函数参数的值不变
+
+C.匿名函数
+>>> map(lambda x : x * x ,[1,2,3,4,5,6,7,8,9])    #直接传入匿名函数
+[1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+def f(x):    #lambda x : x * x相当于此函数
+	return x * x
+关键字lambda表示匿名函数，冒号前面的x表示函数参数，匿名函数有个限制，就是只能有一个表达式，不用写return，返回值就是该表达式的结果.用匿名函数有个好处，因为函数没有名字，不必担心函数名冲突。此外，匿名函数也是一个函数对象，也可以把匿名函数赋值给一个变量，再利用变量来调用该函数.
+>>> f = lambda x : x * x
+>>> f(5)
+25
+
+也可以把匿名函数作为返回值返回
+def build(x, y):
+    return lambda: x * x + y * y
+Python对匿名函数的支持有限，只有一些简单的情况下可以使用匿名函数.
+
+D.装饰器
+def now():
+	print '2015-07-30'
+f = now
+f()
+print now.__name__    #__name__属性可以获得函数名（敲击两次下划线）
+print f.__name__
+2015-07-30
+now
+now
+
+在代码运行期间动态增加功能的方式，称之为“装饰器”（Decorator）
+def log(func):
+	def wrapper(*args, **kw):
+		print 'call %s(): ' % func.__name__
+		return func(*args, **kw)
+	return wrapper
+@log    #now = log(now),log是一个decorator，接受一个函数作为参数，并返回一个函数。
+def now():
+	print '2015-07-30'
+now()
+call now(): 
+2015-07-30
+由于log()是一个decorator，返回一个函数，所以，原来的now()函数仍然存在，只是现在同名的now变量指向了新的函数，于是调用now()将执行新函数，即在log()函数中返回的wrapper()函数。
+wrapper()函数的参数定义是(*args, **kw)，因此，wrapper()函数可以接受任意参数的调用。在wrapper()函数内，首先打印日志，再紧接着调用原始函数。
+
+def log(text):    #自定义log的文本
+	def decorator(func):
+		def wrapper(*args, **kw):
+			print '%s %s():' % (text, func.__name__)
+			return func(*args, **kw)
+		return wrapper
+	return decorator
+@log('execute')   #now = log('execute')(now)
+def now():
+	print '2015-07-30'
+now()
+execute now():
+2015-07-30
+
+一个完整的decorator的写法：
+import functools
+def los(func):
+	@functools.wraps(func)
+	def wrapper(*args, **kw):
+		print 'call %s(): ' % func.__name__
+		return func(*args, **kw)
+	return wrapper
+
+import functools    #带有参数的装饰器
+def los(text):
+	def decorator(func):
+		@functools.wraps(func)
+		def wrapper(*args, **kw):
+			print '%s %s(): ' % (text, func.__name__)
+			return func(*args, **kw)
+		return wrapper
+	return decorator
+
+E.偏函数（Partial function）
+>>> int('12345',base=8)    #int()函数提供额外的base参数，默认值为10.如果传入base参数，就可以做N进制的转换
+5349
+>>> int('12345',16)
+74565
+def int2(x,base=2):    #二进制转换
+	return int(x, base)
+print int2('1000000')
+print int2('1010101')
+64
+85
+
+import functools    #functools.partial的作用就是，把一个函数的某些参数给固定住（也就是设置默认值），返回一个新的函数，调用这个新函数会更简单。
+int2 = functools.partial(int, base=2)
+print int2('1000000')
+print int2('1010101')
+64
+85
+
+创建偏函数时，实际上可以接收函数对象、*args和**kw这3个参数
+int2 = functools.partial(int, base=2)
+固定了int()函数的关键字参数base，也就是：int2('10010')相当于：kw = { base: 2 }，int('10010', **kw)
+
+max2 = functools.partial(max, 10)
+会把10作为*args的一部分自动加到左边
+max2(5, 6, 7)相当于：args = (10, 5, 6, 7)，max(*args)
+
+
 
 
 
