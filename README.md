@@ -65,6 +65,43 @@ print fib(6)
 > 
 > 9.sorted():对列表进行排序，也可以自定义添加函数来定义排序规则
 
+2015.07.30
+----------
+>1.主要学习了返回函数，闭包，匿名函数，装饰器，偏函数
 
+>2.闭包：返回函数的延伸，程序不返回结果，返回函数，通过多层嵌套（2层到3层合适），逐层返回函数，返回函数不要引用循环变量
+```
+def count():
+	fs = []
+	for i in range(1,4):
+		def f(j):
+			def g():
+				return j *j
+			return g
+		fs.append(f(i))
+	return  fs
+f1, f2, f3 = count()
+print f1(), f2(), f3()
+```
+>3.匿名函数lambda，使用范围不广
+>4.装饰器：用来在代码运行其间增加功能，通过多层嵌套，顶层函数使用@元素来调用次级函数
+```
+def los(text):
+	def decorator(func):
+		@functools.wraps(func)
+		def wrapper(*args, **kw):
+			print '%s %s(): ' % (text, func.__name__)
+			return func(*args, **kw)
+		return wrapper
+	return decorator
+```
+>5.偏函数：引用functools.partical功能来固定函数中的一些参数，并返回一个新的函数，来使函数变得更加简单，接收函数对象，可变参数，**kw等三个变量
+```
+int2 = functools.partial(int, base=2)
+print int2('1000000')
+print int2('1010101')
+64
+85
+```
 
 
