@@ -16,19 +16,19 @@
 >1.主要做了Python高级特性——切片，迭代，列表生成式，生成器&高阶函数中map/reduce,filter,sorted这三个函数的笔记</br>
 >2.切片：主要应用于list和tuple.list切片：S=['China','Japan','USA','UK'],S[:3],S[-2:],S[1:3];tuple切片:（'China','Japan','USA','UK'）[1:3]</br>
 >3.迭代：主要通过for循环来遍历list和tuple中的元素.</br>
-S={'A':1,'B':2,'C':3,'D':4};
+`S={'A':1,'B':2,'C':3,'D':4};
 for k,v in S.iteritems():
 	print k ,v
 A 1
 C 3
 B 2
-D 4
+D 4`
 </br>
 >4.列表生成式：主要形式是[表达式 for循环]</br>
-print [n * (n+1) for n in range(1,10)]
-[2, 6, 12, 20, 30, 42, 56, 72, 90]</br>
+`print [n * (n+1) for n in range(1,10)]
+[2, 6, 12, 20, 30, 42, 56, 72, 90]`</br>
 >5.生成器:有两种方式，一种是将[]变成(),生成器中的元素需要通过for循环遍历出来，第二种是中while循环中将print换成yield
-def fib(max):
+`def fib(max):
 	n, a, b = 0, 0, 1
 	while n < max:
 		yield b    
@@ -43,7 +43,7 @@ print fib(6)
 3
 5
 8
-<generator object fib at 0xa981e0></generator></br>
+<generator object fib at 0xa981e0></generator>`</br>
 >6.map():接收两个参数，一个是函数，一个是列表,基本表现形式就是：def f(x);map(f(x),list)</br>
 >7.reduce():比较麻烦些，通式为：reduce(f, [x1, x2, x3, x4]) = f(f(f(x1, x2), x3), x4)，用法类似于map，传入函数跟list</br>
 >8.filter():过滤列表中的元素，用法同样是接收函数跟list,过滤符合函数中的列表元素</br>
