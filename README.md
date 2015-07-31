@@ -106,5 +106,19 @@ print int2('1010101')
 85
 ```
 
+2015.07.31
+----------
+>1.今天时间基本栽第三方库上面了，先是pip安装问题，后是配置PYTHONPATH
+
+>2.python2.7.9以上默认自带pip，pip未安装的话可以去官方下载脚本安装，使用pip命令：pip install packsges，安装库出现问题的话直接在前面加sudo，sudo大法好
+
+>3.配置PYTHONPATH:
+```
+有三种修改方法，两种临时的，一种永久的
+临时的：1.直接命令行中输入:export PYTHONPATH=/usr/lib/python2.7/site-packages/
+       2.sudo vim /etc/profile:export PYTHONPATH=/usr/lib/python2.7/site-packages/
+永久的：sudo vim /etc/bashrc:export PYTHONPATH=/usr/lib/python2.7/site-packages/
+查看路径方式：bash: python --> import sys --> sys.path
+```
 
 
