@@ -121,4 +121,8 @@ print int2('1010101')
 查看路径方式：bash: python --> import sys --> sys.path
 ```
 
+2015.08.01
+----------
+> A day past with nothing.
+
 
