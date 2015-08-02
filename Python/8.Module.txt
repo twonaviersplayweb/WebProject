@@ -89,4 +89,25 @@ pip格式：sudo pip install packages
 JPEG (1920, 1200) RGB
 
 D.__future__
+__future__模块，把下一个新版本的特性导入到当前版本，于是就可以在当前版本中测试一些新版本的特性.
+#为了适应Python 3.x的新的字符串的表示方法，在2.7版本的代码中，可以通过unicode_literals来使用Python 3.x的新的语法
+from __future__ import unicode_literals    #还是在2.7运行中
+print '\'xxx\' is unicode?', isinstance('xxx', unicode)
+print 'u\'xxx\' is unicode?', isinstance(u'xxx', unicode)
+print '\'xxx\' is str?', isinstance('xxx', str)
+print 'b\'xxx\' is str?', isinstance(b'xxx', str)
+'xxx' is unicode? True
+u'xxx' is unicode? True
+'xxx' is str? False
+b'xxx' is str? True
+
+如果你想在Python 2.7的代码中直接使用Python 3.x的除法，可以通过__future__模块的division实现
+from __future__ import division
+print '10 / 3 =', 10 / 3
+print '10.0 / 3 =', 10.0 / 3
+print '10 // 3 =', 10 // 3
+10 / 3 = 3.33333333333
+10.0 / 3 = 3.33333333333
+10 // 3 = 3
+
 
