@@ -125,4 +125,46 @@ print int2('1010101')
 ----------
 > A day past with nothing.
 
+2015.08.02
+----------
+>1.今天的状态不佳，主要看了模块的__future__特性和面向对象编程：类和实例，访问限制，继承和多态内容
+
+>2.类的一般形似：
+```
+class Student(object):
+	def __init__(self, name, score):    #通过定义一个特殊的__init__方法，在创建实例的时候，就把name，score等属性绑上去，self，表示创建的实例本身
+		self.name = name
+		self.score = score
+bart = Student('Bart Simpon', 59)
+print bart.name
+print bart.score
+Bart Simpon
+59
+```
+>3.访问限制：将属性名改为：__xxx__
+
+>4.继承和多态：
+```
+class Animal(object):
+	def run(self):
+		print 'Animal is running...'
+class Dog(Animal):
+	def run(self): 
+		print 'Dog is running...'
+	def eat(self):
+		print 'Eating meat... '
+class Cat(Animal):
+	def run(self):
+		print 'Cat is running...'
+dog = Dog()
+cat = Cat()
+dog.run()
+dog.eat()
+cat.run()
+Dog is running...
+Eating meat... 
+Cat is running...
+```
+
+
 
