@@ -186,9 +186,397 @@ print isinstance(a, list)
 print isinstance(b, Animal)
 print isinstance(c, Dog)
 print isinstance(c, Animal)
-print isinstance(b, Dog)
+print isinstance(b, Dog)    #Dog可以看成Animal，但Animal不可以看成Dog
 True
 True
 True
 True
 False
+
+class Animal(object):
+	def run(self):
+		print 'Animal is running...'
+class Dog(Animal):
+	def run(self):
+		print 'Dog is running'
+class Cat(Animal):
+	def run(self):
+		print 'Cat is running'
+class Tortoise(Animal):
+	def run(self):
+		print 'Tortoise is running slowly...'
+def run_twice(animal):
+	animal.run()
+	animal.run()
+run_twice(Animal())
+run_twice(Dog())
+run_twice(Cat())
+run_twice(Tortoise())
+Animal is running...
+Animal is running...
+Dog is running
+Dog is running
+Cat is running
+Cat is running
+Tortoise is running slowly...
+Tortoise is running slowly...
+多态的好处就是，当需要传入Dog、Cat、Tortoise……时，只需要接收Animal类型就可以了，因为Dog、Cat、Tortoise……都是Animal类型，然后，按照Animal类型进行操作即可。由于Animal类型有run()方法，因此，传入的任意类型，只要是Animal类或者子类，就会自动调用实际类型的run()方法
+“开闭”原则：对扩展开放：允许新增Animal子类；对修改封闭：不需要修改依赖Animal类型的run_twice()等函数.
+
+F.获取对象信息
+1.type()
+>>> type(123)
+<type 'int'>
+>>> type('str')
+<type 'str'>
+>>> type(None)
+<type 'NoneType'>
+>>> type(abs)
+<type 'builtin_function_or_method'>
+>>> type(123) == type(456)
+True
+>>> type('abc') == type('123')
+True
+>>> type('abc') == type(123)
+False
+
+>>> import types
+>>> type('abc') == types.StringType
+True
+>>> type(u'abc') == types.UnicodeType
+True
+>>> type([]) == types.ListType
+True
+>>> type(str) == types.TypeType    
+True
+>>> type(int) == type(str) == types.TypeType    #所有类型本身的类型就是TypeType
+True
+
+2.isinstance()
+使用于类
+class Animal(object):
+	def run(self):
+		print 'Animal is running...'
+class Dog(Animal):
+	def run(self):
+		print 'Dog is running...'
+class Husky(Dog):
+	def run(self):
+		print 'Husky is running...'
+a = Animal()
+d = Dog()
+h = Husky()
+print isinstance(h, Husky)
+print isinstance(h, Dog)
+print isinstance(h, Animal)
+print isinstance(d, Dog) and isinstance(d, Animal)
+print isinstance(d, Husky)
+print isinstance('a', str)    #能用type()判断的基本类型也可以用isinstance()判断
+print isinstance(u'a', unicode)
+print isinstance('a', unicode)
+print isinstance('a', (str, unicode))    #判断一个变量是否是某些类型中的一种
+print isinstance(u'a', (str, unicode))
+print isinstance(u'a', basestring)    #str和unicode都是从basestring继承下来的
+True
+True
+True
+True
+False
+True
+True
+False
+True
+True
+True
+
+3.dir()
+要获得一个对象的所有属性和方法，可以使用dir()函数，它返回一个包含字符串的list
+>>> dir('ABC')
+['__add__', '__class__', '__contains__', '__delattr__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getnewargs__', '__getslice__', '__gt__', '__hash__', '__init__', '__le__', '__len__', '__lt__', '__mod__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__rmod__', '__rmul__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '_formatter_field_name_split', '_formatter_parser', 'capitalize', 'center', 'count', 'decode', 'encode', 'endswith', 'expandtabs', 'find', 'format', 'index', 'isalnum', 'isalpha', 'isdigit', 'islower', 'isspace', 'istitle', 'isupper', 'join', 'ljust', 'lower', 'lstrip', 'partition', 'replace', 'rfind', 'rindex', 'rjust', 'rpartition', 'rsplit', 'rstrip', 'split', 'splitlines', 'startswith', 'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill']
+>>> len('ABC')    #如果你调用len()函数试图获取一个对象的长度，实际上，在len()函数内部，它自动去调用该对象的__len__()方法,与下面那个等价
+3
+>>> 'ABC'.__len__()
+3
+
+class MyObject(object):
+	def __len__(self):
+		return 100
+obj = MyObject()
+print len(obj)
+100
+
+>>> 'ABC'.lower()    #lower()将大写字母改成小写字母
+'abc'
+
+class MyObject(object):
+	def __init__(self):
+		self.x = 9
+	def power(self):
+		return self.x * self.x
+obj = MyObject()
+print hasattr(obj, 'x')    # 有属性'x'吗？
+print obj.x
+print hasattr(obj, 'y')
+print setattr(obj, 'y', 19)    #设置属性'y'
+print hasattr(obj, 'y')
+print getattr(obj, 'y')    #获取属性'y'
+print obj.y
+True
+9
+False
+None
+True
+19
+19
+
+如果试图获取不存在的属性，会抛出AttributeError的错误：
+>>> getattr(obj, 'z') # 获取属性'z'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'MyObject' object has no attribute 'z'
+可以传入一个default参数，如果属性不存在，就返回默认值：
+>>> getattr(obj, 'z', 404) # 获取属性'z'，如果不存在，返回默认值404
+404
+
+也可以获得对象的方法：
+>>> hasattr(obj, 'power') # 有属性'power'吗？
+True
+>>> getattr(obj, 'power') # 获取属性'power'
+<bound method MyObject.power of <__main__.MyObject object at 0x108ca35d0>>
+>>> fn = getattr(obj, 'power') # 获取属性'power'并赋值到变量fn
+>>> fn # fn指向obj.power
+<bound method MyObject.power of <__main__.MyObject object at 0x108ca35d0>>
+>>> fn() # 调用fn()与调用obj.power()是一样的
+81
+
+G.__solts__
+1.给实例绑定属性
+class Student(object):
+	pass
+s = Student()
+s.name = 'Michael'
+print s.name
+Michael
+
+2.给实例绑定方法
+class Student(object):
+	pass
+
+def set_age(self, age):    #定义一个函数作为实例方法
+	self.age = age
+s = Student()
+from types import MethodType
+s.set_age = MethodType(set_age, s, Student)    #给实例绑定一个方法
+s.set_age(25)
+print s.age
+s2 = Student()    #创建新的实例，失败，未绑定方法
+s2.set_age(25)    #尝试调用方法
+25
+Traceback (most recent call last):
+  File "1.py", line 12, in <module>
+    s2.set_age(25)
+AttributeError: 'Student' object has no attribute 'set_age'
+
+class Student(object):
+	pass
+def set_age(self, age):
+	self.age = age
+def set_score(self, score):
+	self.score = score
+s = Student()
+s2 = Student()
+from types import MethodType
+Student.set_score = MethodType(set_score, None ,Student)    #给全局绑定方法
+s.set_score(100)
+print s.score
+s2.set_score(99)
+print s2.score
+100
+99
+
+3.__slots__
+Python允许在定义class的时候，定义一个特殊的__slots__变量，来限制该class能添加的属性,__slots__定义的属性仅对当前类起作用，对继承的子类是不起作用的
+class Student(object):
+	__slots__ = ('name', 'age')    #用tuple定义允许绑定的属性名称
+s = Student()
+s.name = 'Setsuna'
+s.age = 25
+print s.name
+print s.age
+s.score = 99
+print s.score
+Setsuna
+25
+Traceback (most recent call last):
+  File "1.py", line 8, in <module>
+    s.score = 99
+AttributeError: 'Student' object has no attribute 'score'
+
+class Student(object):
+	__slots__ = ('name', 'age')
+class GraduateStudent(Student):
+	pass
+g = GraduateStudent()    #__slots__对继承的子类无效，除非在子类中也定义__slots__，这样，子类允许定义的属性就是自身的__slots__加上父类的__slots__
+g.score = 9999
+print g.score
+9999
+
+H.property
+class Student(object):
+	def get_score(self):
+		return self._score
+	def set_score(self,value):
+		if not isinstance(value, int):
+			raise ValueError('score must be an integer!')
+		if value < 0 or value > 100:
+			raise ValueError('score must between 0 ~ 100!')
+		self._score = value
+s = Student()
+s.set_score(60)
+print s.get_score()
+s.set_score(9999)
+print s.get_score()
+60
+Traceback (most recent call last):
+  File "1.py", line 13, in <module>
+    s.set_score(9999)
+  File "1.py", line 8, in set_score
+    raise ValueError('score must between 0 ~ 100!')
+ValueError: score must between 0 ~ 100!
+
+Python内置的@property装饰器就是负责把一个方法变成属性调用的
+class Student(object):
+	@property    #把一个getter方法变成属性，只需要加上@property就可以了，@property本身又创建了另一个装饰器@score.setter，负责把一个setter方法变成属性赋值，于是,就拥有一个可控的属性操作
+	def score(self):
+	    return self._score
+	@score.setter
+	def score(self,value):
+		if not isinstance(value, int):
+			raise ValueError('score must be an integer!')
+		if value < 0 or value > 100:
+			raise ValueError('score must between 0 ~ 100!')
+		self._score = value
+s = Student()
+s.score = 60
+print s.score
+s.score = 9999
+print s.score
+60
+Traceback (most recent call last):
+  File "1.py", line 15, in <module>
+    s.score = 9999
+  File "1.py", line 10, in score
+    raise ValueError('score must between 0 ~ 100!')
+ValueError: score must between 0 ~ 100!
+
+设置读写权限：
+class Student(object):
+	@property
+	def birth(self):    
+	    return self._birth
+	@birth.setter
+	def birth(self, value):    #birth可读写
+		self._birth = value
+	@property
+	def age(self):    #只读不能写
+	    return 2015 - self._age
+
+I.多重继承
+1.实例
+class Animal(object):
+	pass
+class Mammal(Animal):
+	pass
+class Bird(Animal):
+	pass
+class Runnable(object):
+	def run(self):
+		print 'Running...'
+class Flyable(object):
+	def fly(self):
+		print 'Flying...'
+class Dog(Mammal, Runnable):
+	pass
+class Bat(Mammal, Flyable):
+	pass
+通过多重继承，一个子类就可以同时获得多个父类的所有功能
+
+2.Mixin
+class Dog(Mammal, RunnableMixin, CarnivorousMixin):    #Minix设计，就是让一个类继承多重关系或功能
+    pass
+
+Python自带了TCPServer和UDPServer这两类网络服务，而要同时服务多个用户就必须使用多进程或多线程模型，这两种模型由ForkingMixin和ThreadingMixin提供。通过组合，就可以创造出合适的服务来
+
+编写一个多进程模式的TCP服务，定义如下：
+class MyTCPServer(TCPServer, ForkingMixin):
+    pass
+
+编写一个多线程模式的UDP服务，定义如下：
+class MyUDPServer(UDPServer, ThreadingMixin):
+    pass
+
+如果打算搞一个更先进的协程模型，可以编写一个CoroutineMixin：
+class MyTCPServer(TCPServer, CoroutineMixin):
+    pass
+
+J.定制类
+特殊用途的函数
+1.__str__
+class Student(object):
+	def __init__(self, name):
+		self.name = name
+	def __str__(self):
+		return 'Student object (name: %s)' % self.name
+print Student('Setsuna')	
+Setsuna
+
+直接显示变量调用的不是__str__()，而是__repr__()，两者的区别是__str__()返回用户看到的字符串，而__repr__()返回程序开发者看到的字符串，也就是说，__repr__()是为调试服务的
+class Student(object):
+	def __init__(self, name):
+		self.name = name
+	def __str__(self):
+		return 'Student object (name: %s)' % self.name
+__repr__ = __str__
+print Student('Setsuna')
+
+2.__iter__
+class Fib(object):
+	def __init__(self):
+		self.a, self.b = 0, 1
+	def __iter__(self):    # # 实例本身就是迭代对象，故返回自己
+		return self
+	def next(self):
+		self.a, self.b = self.b, self.a +self.b
+		if self.a > 100000:
+			raise StopIteration()
+		return self.a	
+for n in Fib():
+	print n
+1
+1
+2
+3
+5
+8
+13
+21
+34
+55
+89
+144
+233
+377
+610
+987
+1597
+2584
+4181
+6765
+10946
+17711
+28657
+46368
+75025
+
+3.__getitem__
+

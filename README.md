@@ -166,5 +166,33 @@ Eating meat...
 Cat is running...
 ```
 
+2015.08.03
+----------
+>1.主要学习了对象编程中的获取对象属性，__slots__,@property,多重继承,以及部分定制类函数
 
+>2.获取对象属性的方法有这几个函数：type(),isinstance(),dir(),在class中可用hasattr(),setattr(),getattr()
 
+>3.__slots__主要用来限制类属性的添加，仅对它所在的类有用，继承类无效，除非在子类中也定义__slots__
+
+>4.@property装饰器主要用来把方法变为属性调用：
+```
+class Student(object):
+	@property    
+	def score(self):
+	    return self._score
+	@score.setter
+	def score(self,value):
+		if not isinstance(value, int):
+			raise ValueError('score must be an integer!')
+		if value < 0 or value > 100:
+			raise ValueError('score must between 0 ~ 100!')
+		self._score = value
+s = Student()
+s.score = 60
+print s.score
+s.score = 9999
+print s.score
+```
+>5.多重继承：class Dog(Mammal, RunnableMixin, CarnivorousMixin)
+
+>6.定制类函数：__str__,__iter__,暂且不表

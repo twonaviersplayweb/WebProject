@@ -130,6 +130,69 @@ print int2('1010101')
 >1.今天的状态不佳，主要看了模块的__future__特性和面向对象编程：类和实例，访问限制，继承和多态内容
 
 >2.类的一般形似：
+```
+class Student(object):
+	def __init__(self, name, score):    #通过定义一个特殊的__init__方法，在创建实例的时候，就把name，score等属性绑上去，self，表示创建的实例本身
+		self.name = name
+		self.score = score
+bart = Student('Bart Simpon', 59)
+print bart.name
+print bart.score
+Bart Simpon
+59
+```
+>3.访问限制：将属性名改为：__xxx__
 
+>4.继承和多态：
+```
+class Animal(object):
+	def run(self):
+		print 'Animal is running...'
+class Dog(Animal):
+	def run(self): 
+		print 'Dog is running...'
+	def eat(self):
+		print 'Eating meat... '
+class Cat(Animal):
+	def run(self):
+		print 'Cat is running...'
+dog = Dog()
+cat = Cat()
+dog.run()
+dog.eat()
+cat.run()
+Dog is running...
+Eating meat... 
+Cat is running...
+```
 
+2015.08.03
+----------
+>1.主要学习了对象编程中的获取对象属性，__slots__,@property,多重继承,以及部分定制类函数
 
+>2.获取对象属性的方法有这几个函数：type(),isinstance(),dir(),在class中可用hasattr(),setattr(),getattr()
+
+>3.__slots__主要用来限制类属性的添加，仅对它所在的类有用，继承类无效，除非在子类中也定义__slots__
+
+>4.@property装饰器主要用来把方法变为属性调用：
+```
+class Student(object):
+	@property    
+	def score(self):
+	    return self._score
+	@score.setter
+	def score(self,value):
+		if not isinstance(value, int):
+			raise ValueError('score must be an integer!')
+		if value < 0 or value > 100:
+			raise ValueError('score must between 0 ~ 100!')
+		self._score = value
+s = Student()
+s.score = 60
+print s.score
+s.score = 9999
+print s.score
+```
+>5.多重继承：class Dog(Mammal, RunnableMixin, CarnivorousMixin)
+
+>6.定制类函数：__str__,__iter__
