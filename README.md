@@ -200,6 +200,7 @@ print s.score
 2015.08.04
 ----------
 >1.主要学习了元类，错误处理的几种方式以及调试
+
 >2.元类：定义metaclass，就可以创建类，最后创建实例
 ```
 class ListMetaclass(type):
