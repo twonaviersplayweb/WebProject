@@ -579,4 +579,265 @@ for n in Fib():
 75025
 
 3.__getitem__
+使用__getitem__，可以实现像list一般取出下标
+class Fib(object):
+	def __init__(self):
+		self.a, self.b = 0, 1
+	def __iter__(self):
+		return self
+	def next(self):
+		self.a, self.b = self.b, self.a +self.b
+		if self.a > 100000:
+			raise StopIteration()
+		return self.a	
+	def __getitem__(self, n):
+		a, b = 1, 1
+		for x in range(n):
+			a, b = b, a + b
+		return a
+f = Fib()
+print f [0], f [1],f [10], f [100]
+1 1 89 573147844013817084101
+
+Fib函数改版，可用切片
+class Fib(object):
+	def __init__(self):
+		self.a, self.b = 0, 1
+	def __iter__(self):
+		return self
+	def next(self):
+		self.a, self.b = self.b, self.a +self.b
+		if self.a > 100000:
+			raise StopIteration()
+		return self.a	
+	def __getitem__(self, n):
+		if isinstance(n, int):
+			a, b = 1, 1
+			for x in range(n):
+				a, b = b, a+b
+			return a
+		if isinstance(n, slice):
+			start = n.start
+			stop = n.stop
+			a, b =1, 1
+			L = []
+			for x in range(stop):
+				if x >= start:
+					L.append(a)
+				a, b = b, a + b
+			return L
+f = Fib()
+print f [0:5]
+print f [:10]
+print f [:10:2]
+[1, 1, 2, 3, 5]
+[1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+[1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+
+把对象看成dict，__getitem__()的参数也可能是一个可以作key的object，例如str
+与之对应的是__setitem__()方法，把对象视作list或dict来对集合赋值。最后，还有一个__delitem__()方法，用于删除某个元素
+
+4.__getattr__
+动态返回一个属性
+class Student(object):
+	def __init__(self):
+		self.name = 'Setsuna'
+	def __getattr__(self, attr):
+		if attr == 'score' :
+			return 99
+		if attr == 'age' :
+			return lambda : 25    #return to function
+		raise AttributeError('\'Student\' object has no attribute \'%s\'' % attr)
+s = Student()
+print s.name
+print s.score
+print s.age()
+print s.abc
+Setsuna
+99
+25
+Traceback (most recent call last):
+  File "1.py", line 14, in <module>
+    print s.abc
+  File "1.py", line 9, in __getattr__
+    raise AttributeError('\'Student\' object has no attribute \'%s\'' % attr)    #若无该句，则返回None,__getattr__默认返回None
+AttributeError: 'Student' object has no attribute 'abc'
+
+只有在没有找到属性的情况下，才调用__getattr__，已有的属性，比如name，不会在__getattr__中查找
+
+动态调用的用处（可以方便的调用API）
+class Chain(object):
+	def __init__(self, path = ''):
+		self._path = path
+	def __getattr__(self, path):
+		return Chain('%s/%s' % (self._path, path))
+	def __str__(self):
+		return self._path
+print Chain().status.user.timeline.list
+/status/user/timeline/list
+
+5.__call__
+任何类，只需要定义一个__call__()方法，就可以直接对实例进行调用.通过callable()函数，可以判断一个对象是否是“可调用”对象
+class Student(object):
+	def __init__(self, name):
+		self.name = name
+	def __call__ (self):    #__call__()还可以定义参数
+		print('My name is %s.' % self.name)
+s = Student('Setsuna')
+s()
+print callable(Student)    #判断一个对象是否能被调用，能被调用的对象就是一个Callable对象
+print callable(max)
+print callable([1,2,3])
+print callable(None)
+print callable('str')
+My name is Setsuna.
+True
+True
+False
+False
+False
+
+K.元类
+动态语言和静态语言最大的不同，就是函数和类的定义，不是编译时定义的，而是运行时动态创建的
+1.type()
+先创建一个hello.py文档
+class Hello(object):
+	def hello(self, name = 'world'):
+		print('Hello, %s.' % name)
+在终端中先运行python，后输入
+>>> from hello import Hello
+>>> h = Hello()
+>>> h.hello()
+Hello, world.
+>>> print(type(Hello))
+<type 'type'>
+>>> print(type(h))
+<class 'hello.Hello'>
+type()函数可以查看一个类型或变量的类型，Hello是一个class，它的类型就是type，而h是一个实例，它的类型就是class Hello
+
+type()函数既可以返回一个对象的类型，又可以创建出新的类型
+def fn(self, name = 'world'):
+	print('Hello, %s.' % name)
+Hello = type('Hello', (object,), dict(hello=fn))
+h = Hello()
+h.hello()
+print(type(Hello))
+print(type(h))
+Hello, world.
+<type 'type'>
+<class '__main__.Hello'>
+要创建一个class对象，type()函数依次传入3个参数：
+    1.class的名称；
+    2.继承的父类集合，注意Python支持多重继承，如果只有一个父类，别忘了tuple的单元素写法；
+    3.class的方法名称与函数绑定，这里我们把函数fn绑定到方法名hello上.
+通过type()函数创建的类和直接写class是完全一样的，因为Python解释器遇到class定义时，仅仅是扫描一下class定义的语法，然后调用type()函数创建出class.
+
+2.metaclass(元类)
+先定义metaclass，就可以创建类，最后创建实例
+class ListMetaclass(type):
+	def __new__(cls, name, bases, attrs):
+		attrs['add'] = lambda self, value :self.append(value)
+		return type.__new__(cls, name, bases, attrs)
+class MyList(list):
+	__metaclass__ = ListMetaclass    #指示Python解释器在创建MyList时，要通过ListMetaclass.__new__()来创建，在此，我们可以修改类的定义，
+                                         比如，加上新的方法，然后，返回修改后的定义
+L = MyList()
+L.add(1)
+print L
+l = list()    #普通元类没有add()方法
+l.add(1)
+print l
+[1]
+Traceback (most recent call last):
+  File "1.py", line 13, in <module>
+    l.add(1)
+AttributeError: 'list' object has no attribute 'add'
+
+__new__()方法接收到的参数依次是：
+    1.当前准备创建的类的对象；
+    2.类的名字；
+    3.类继承的父类集合；
+    4.类的方法集合
+
+3.ORM
+Object Relational Mapping，即对象-关系映射，就是把关系数据库的一行映射为一个对象，也就是一个类对应一个表，这样，写代码更简单，不用直接操作SQL语句
+
+精简的ORM框架
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+' Simple ORM using metaclass '
+
+__author__ = 'Michael Liao'
+
+class Field(object):
+    def __init__(self, name, column_type):
+        self.name = name
+        self.column_type = column_type
+    def __str__(self):
+        return '<%s:%s>' % (self.__class__.__name__, self.name)
+
+class StringField(Field):
+    def __init__(self, name):
+        super(StringField, self).__init__(name, 'varchar(100)')
+
+class IntegerField(Field):
+    def __init__(self, name):
+        super(IntegerField, self).__init__(name, 'bigint')
+
+class ModelMetaclass(type):
+
+    def __new__(cls, name, bases, attrs):
+        if name=='Model':
+            return type.__new__(cls, name, bases, attrs)
+        print('Found model: %s' % name)
+        mappings = dict()
+        for k, v in attrs.iteritems():
+            if isinstance(v, Field):
+                print('Found mapping: %s ==> %s' % (k, v))
+                mappings[k] = v
+        for k in mappings.iterkeys():
+            attrs.pop(k)
+        attrs['__mappings__'] = mappings # 保存属性和列的映射关系
+        attrs['__table__'] = name # 假设表名和类名一致
+        return type.__new__(cls, name, bases, attrs)
+
+class Model(dict):
+    __metaclass__ = ModelMetaclass
+
+    def __init__(self, **kw):
+        super(Model, self).__init__(**kw)
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(r"'Model' object has no attribute '%s'" % key)
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def save(self):
+        fields = []
+        params = []
+        args = []
+        for k, v in self.__mappings__.iteritems():
+            fields.append(v.name)
+            params.append('?')
+            args.append(getattr(self, k, None))
+        sql = 'insert into %s (%s) values (%s)' % (self.__table__, ','.join(fields), ','.join(params))
+        print('SQL: %s' % sql)
+        print('ARGS: %s' % str(args))
+
+# testing code:
+
+class User(Model):
+    id = IntegerField('uid')
+    name = StringField('username')
+    email = StringField('email')
+    password = StringField('password')
+
+u = User(id=12345, name='Michael', email='test@orm.org', password='my-pwd')
+u.save()
+
 
