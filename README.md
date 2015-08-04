@@ -276,20 +276,17 @@ class Model(dict):
         sql = 'insert into %s (%s) values (%s)' % (self.__table__, ','.join(fields), ','.join(params))
         print('SQL: %s' % sql)
         print('ARGS: %s' % str(args))
-
 class User(Model):    #测试代码
     id = IntegerField('uid')
     name = StringField('username')
     email = StringField('email')
     password = StringField('password')
-
 u = User(id=12345, name='Michael', email='test@orm.org', password='my-pwd')
 u.save()
 ```
 
 >4.错误处理方式主要有：
 ```
-try...expect...finally
 try:
 	print 'try...'
 	r = 10 / int('a')
@@ -310,7 +307,6 @@ END
 ```
 
 ```
-调用堆栈
 def foo(s):
 	return 10 / int(s)
 def bar(s):
@@ -318,7 +314,6 @@ def bar(s):
 def main():
 	bar('0')
 main()
-
 Traceback (most recent call last):    
   File "1.py", line 7, in <module>
     main()
@@ -332,8 +327,6 @@ ZeroDivisionError: integer division or modulo by zero
 ```
 
 ```
-记录错误
-
 def foo(s):
 	return 10 / int(s)
 def bar(s):
@@ -345,7 +338,6 @@ def main():
 		logging.exception(e)
 main()
 print 'END'
-
 ERROR:root:integer division or modulo by zero
 Traceback (most recent call last):
   File "1.py", line 9, in main
@@ -360,13 +352,11 @@ END
 
 >5.调试：print,assert,logging,pdb(命),pdb.set_trace()(命),IDE
 ```
-pdb.set_trace()
 import pdb
 s = '0'
 n = int(s)
 pdb.set_trace()    #运行到这里会自动暂停
 print 10/n
-
 > /home/SETSUNA/Desktop/1.py(5)<module>()
 -> print 10/n
 (Pdb) p n    #命令p查看变量
