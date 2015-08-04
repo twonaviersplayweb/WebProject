@@ -195,4 +195,196 @@ print s.score
 ```
 >5.多重继承：class Dog(Mammal, RunnableMixin, CarnivorousMixin)
 
->6.定制类函数：__str__,__iter__
+>6.定制类函数：__str__,__iter__,暂且不表
+
+2015.08.04
+----------
+>1.主要学习了元类，错误处理的几种方式以及调试
+>2.元类：定义metaclass，就可以创建类，最后创建实例
+```
+class ListMetaclass(type):
+	def __new__(cls, name, bases, attrs):
+		attrs['add'] = lambda self, value :self.append(value)
+		return type.__new__(cls, name, bases, attrs)
+class MyList(list):
+	__metaclass__ = ListMetaclass    #指示Python解释器在创建MyList时，要通过ListMetaclass.__new__()来创建，在此，我们可以修改类的定义，
+                                         比如，加上新的方法，然后，返回修改后的定义
+L = MyList()
+L.add(1)
+print L
+l = list()    #普通元类没有add()方法
+l.add(1)
+print l
+[1]
+Traceback (most recent call last):
+  File "1.py", line 13, in <module>
+    l.add(1)
+AttributeError: 'list' object has no attribute 'add'
+```
+>3.ORM:Object Relational Mapping，即对象-关系映射，就是把关系数据库的一行映射为一个对象，也就是一个类对应一个表
+```
+精简的ORM框架
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+' Simple ORM using metaclass '
+
+__author__ = 'Michael Liao'
+
+class Field(object):
+    def __init__(self, name, column_type):
+        self.name = name
+        self.column_type = column_type
+    def __str__(self):
+        return '<%s:%s>' % (self.__class__.__name__, self.name)
+
+class StringField(Field):
+    def __init__(self, name):
+        super(StringField, self).__init__(name, 'varchar(100)')
+
+class IntegerField(Field):
+    def __init__(self, name):
+        super(IntegerField, self).__init__(name, 'bigint')
+
+class ModelMetaclass(type):
+
+    def __new__(cls, name, bases, attrs):
+        if name=='Model':
+            return type.__new__(cls, name, bases, attrs)
+        print('Found model: %s' % name)
+        mappings = dict()
+        for k, v in attrs.iteritems():
+            if isinstance(v, Field):
+                print('Found mapping: %s ==> %s' % (k, v))
+                mappings[k] = v
+        for k in mappings.iterkeys():
+            attrs.pop(k)
+        attrs['__mappings__'] = mappings # 保存属性和列的映射关系
+        attrs['__table__'] = name # 假设表名和类名一致
+        return type.__new__(cls, name, bases, attrs)
+
+class Model(dict):
+    __metaclass__ = ModelMetaclass
+
+    def __init__(self, **kw):
+        super(Model, self).__init__(**kw)
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(r"'Model' object has no attribute '%s'" % key)
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def save(self):
+        fields = []
+        params = []
+        args = []
+        for k, v in self.__mappings__.iteritems():
+            fields.append(v.name)
+            params.append('?')
+            args.append(getattr(self, k, None))
+        sql = 'insert into %s (%s) values (%s)' % (self.__table__, ','.join(fields), ','.join(params))
+        print('SQL: %s' % sql)
+        print('ARGS: %s' % str(args))
+
+# testing code:
+
+class User(Model):
+    id = IntegerField('uid')
+    name = StringField('username')
+    email = StringField('email')
+    password = StringField('password')
+
+u = User(id=12345, name='Michael', email='test@orm.org', password='my-pwd')
+u.save()
+```
+>4.错误处理方式主要有：
+```
+#try...expect...finally
+try:
+	print 'try...'
+	r = 10 / int('a')
+	print 'result:', r
+except ValueError, e:
+	print 'ValueError:', e
+except ZeroDivisionError, e:
+	print 'ZeroDivisionError', e
+else:
+	print 'no error!'
+finally:
+	print 'finally...'
+print 'END'
+try...
+ValueError: invalid literal for int() with base 10: 'a'
+finally...
+END
+```
+```
+#调用堆栈
+def foo(s):
+	return 10 / int(s)
+def bar(s):
+	return foo(s) * 2
+def main():
+	bar('0')
+main()
+
+Traceback (most recent call last):    
+  File "1.py", line 7, in <module>
+    main()
+  File "1.py", line 6, in main
+    bar('0')
+  File "1.py", line 4, in bar
+    return foo(s) * 2
+  File "1.py", line 2, in foo
+    return 10 / int(s)
+ZeroDivisionError: integer division or modulo by zero
+```
+```
+#记录错误
+
+def foo(s):
+	return 10 / int(s)
+def bar(s):
+	return foo(s) * 2
+def main():
+	try:
+		bar('0')
+	except StandardError, e:
+		logging.exception(e)
+main()
+print 'END'
+
+ERROR:root:integer division or modulo by zero
+Traceback (most recent call last):
+  File "1.py", line 9, in main
+    bar('0')
+  File "1.py", line 6, in bar
+    return foo(s) * 2
+  File "1.py", line 4, in foo
+    return 10 / int(s)
+ZeroDivisionError: integer division or modulo by zero
+END
+```
+>5.调试：print,assert,logging,pdb(命),pdb.set_trace()(命),IDE
+```
+import pdb
+s = '0'
+n = int(s)
+pdb.set_trace()    #运行到这里会自动暂停
+print 10/n
+
+> /home/SETSUNA/Desktop/1.py(5)<module>()
+-> print 10/n
+(Pdb) p n    #命令p查看变量
+0
+(Pdb) c    #命令c继续运行
+Traceback (most recent call last):
+  File "1.py", line 5, in <module>
+    print 10/n
+ZeroDivisionError: integer division or modulo by zero
+```
+

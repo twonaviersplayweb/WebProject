@@ -1,0 +1,284 @@
+A.错误处理
+1.try...except...finally
+try:
+	print 'try...'
+	r = 10 / int('a')
+	print 'result:', r
+except ValueError, e:
+	print 'ValueError:', e
+except ZeroDivisionError, e:
+	print 'ZeroDivisionError', e
+else:
+	print 'no error!'
+finally:
+	print 'finally...'
+print 'END'
+try...
+ValueError: invalid literal for int() with base 10: 'a'
+finally...
+END
+
+Python的错误其实也是class，所有的错误类型都继承自BaseException，所以在使用except时需要注意的是，它不但捕获该类型的错误，还把其子类也“一网打尽”
+Python所有的错误都是从BaseException类派生的，常见的错误类型和继承关系看这里
+BaseException
+ +-- SystemExit
+ +-- KeyboardInterrupt
+ +-- GeneratorExit
+ +-- Exception
+      +-- StopIteration
+      +-- StandardError
+      |    +-- BufferError
+      |    +-- ArithmeticError
+      |    |    +-- FloatingPointError
+      |    |    +-- OverflowError
+      |    |    +-- ZeroDivisionError
+      |    +-- AssertionError
+      |    +-- AttributeError
+      |    +-- EnvironmentError
+      |    |    +-- IOError
+      |    |    +-- OSError
+      |    |         +-- WindowsError (Windows)
+      |    |         +-- VMSError (VMS)
+      |    +-- EOFError
+      |    +-- ImportError
+      |    +-- LookupError
+      |    |    +-- IndexError
+      |    |    +-- KeyError
+      |    +-- MemoryError
+      |    +-- NameError
+      |    |    +-- UnboundLocalError
+      |    +-- ReferenceError
+      |    +-- RuntimeError
+      |    |    +-- NotImplementedError
+      |    +-- SyntaxError
+      |    |    +-- IndentationError
+      |    |         +-- TabError
+      |    +-- SystemError
+      |    +-- TypeError
+      |    +-- ValueError
+      |         +-- UnicodeError
+      |              +-- UnicodeDecodeError
+      |              +-- UnicodeEncodeError
+      |              +-- UnicodeTranslateError
+      +-- Warning
+           +-- DeprecationWarning
+           +-- PendingDeprecationWarning
+           +-- RuntimeWarning
+           +-- SyntaxWarning
+           +-- UserWarning
+           +-- FutureWarning
+	   +-- ImportWarning
+	   +-- UnicodeWarning
+	   +-- BytesWarning
+
+def foo(s):
+	return 10 / int(s)
+def bar(s):
+	return foo(s) * 2
+def main():
+	try:
+		bar('0')    #适当位置放置，可大大减少麻烦
+	except StandardError, e:
+		print 'Error!'
+	finally:
+		print 'finally...'
+
+2.调用堆栈
+def foo(s):
+	return 10 / int(s)
+def bar(s):
+	return foo(s) * 2
+def main():
+	bar('0')
+main()
+
+Traceback (most recent call last):    
+  File "1.py", line 7, in <module>
+    main()
+  File "1.py", line 6, in main
+    bar('0')
+  File "1.py", line 4, in bar
+    return foo(s) * 2
+  File "1.py", line 2, in foo
+    return 10 / int(s)
+ZeroDivisionError: integer division or modulo by zero
+
+3.记录错误
+import logging
+
+def foo(s):
+	return 10 / int(s)
+def bar(s):
+	return foo(s) * 2
+def main():
+	try:
+		bar('0')
+	except StandardError, e:
+		logging.exception(e)
+main()
+print 'END'
+
+ERROR:root:integer division or modulo by zero
+Traceback (most recent call last):
+  File "1.py", line 9, in main
+    bar('0')
+  File "1.py", line 6, in bar
+    return foo(s) * 2
+  File "1.py", line 4, in foo
+    return 10 / int(s)
+ZeroDivisionError: integer division or modulo by zero
+END
+
+通过配置，logging还可以把错误记录到日志文件里，方便事后排查
+
+4.抛出错误
+错误是class，捕获一个错误就是捕获到该class的一个实例。因此，错误并不是凭空产生的，而是有意创建并抛出的。Python的内置函数会抛出很多类型的错误，我们自己编写的函数也可以抛出错误
+
+要抛出错误，首先根据需要，可以定义一个错误的class，选择好继承关系，然后，用raise语句抛出一个错误的实例
+class FooError(StandardError):
+	pass
+def foo(s):
+	n = int(s)
+	if n == 0:
+		raise FooError('invalid value: %s' % s)
+	return 10 / n
+
+另外一种常用处理错误方式：
+def foo(s):
+	n == int(s)
+	return 10/n
+def bar(s):
+	try:
+		return foo(s)*2
+	except StandardError, e:
+		print 'Error!'
+		raise
+def main():
+	bar('0')
+main()
+
+Error!
+Traceback (most recent call last):
+  File "1.py", line 12, in <module>
+    main()
+  File "1.py", line 11, in main
+    bar('0')
+  File "1.py", line 6, in bar
+    return foo(s)*2
+  File "1.py", line 2, in foo
+    n == int(s)
+NameError: global name 'n' is not defined
+
+raise语句如果不带参数，就会把当前错误原样抛出。此外，在except中raise一个Error，还可以把一种类型的错误转化成另一种类型：
+try:
+    10 / 0
+except ZeroDivisionError:
+    raise ValueError('input error!')
+只要是合理的转换逻辑就可以，但是，决不应该把一个IOError转换成毫不相干的ValueError
+
+B.调试
+1.print
+def foo(s):
+	n = int(s)
+	print '>>> n = %d' % n
+	return 10/n
+def main():
+	foo('0')
+main()
+
+>>> n = 0
+Traceback (most recent call last):
+  File "1.py", line 7, in <module>
+    main()
+  File "1.py", line 6, in main
+    foo('0')
+  File "1.py", line 4, in foo
+    return 10/n
+ZeroDivisionError: integer division or modulo by zero
+用print最大的坏处是将来还得删掉它，想想程序里到处都是print，运行结果也会包含很多垃圾信息
+
+2.assert(断言)
+用print来辅助查看的地方，都可以用断言（assert）来替代
+def foo(s):
+	n = int(s)
+	assert n != 0, 'n is zero!'   #assert的意思是，表达式n != 0应该是True，否则，后面的代码就会出错  
+	return 10 / n
+def main():
+	foo('0')
+如果断言失败，assert语句本身就会抛出AssertionError
+Traceback (most recent call last):
+  ...
+AssertionError: n is zero!
+启动Python解释器时可以用-O参数来关闭assert,关闭后，可以把所有的assert语句当成pass来看
+
+3.logging
+import logging
+logging.basicConfig(level = logging.INFO)
+s = '0'
+n = int(s)
+logging.info('n = %d' % n)
+print 10/n
+
+INFO:root:n = 0
+Traceback (most recent call last):
+  File "1.py", line 6, in <module>
+    print 10/n
+ZeroDivisionError: integer division or modulo by zero
+
+logging的好处，它允许指定记录信息的级别，有debug，info，warning，error等几个级别，当我们指定level=INFO时，logging.debug就不起作用了.同理，指定level=WARNING后，debug和info就不起作用了.这样一来，你可以放心地输出不同级别的信息，也不用删除，最后统一控制输出哪个级别的信息.
+logging的另一个好处是通过简单的配置，一条语句可以同时输出到不同的地方，比如console和文件
+
+4.pdb
+s = '0'
+n = int(s)
+print 10/n
+
+[SETSUNA@localhost Desktop]$ python -m pdb 1.py
+> /home/SETSUNA/Desktop/1.py(1)<module>()
+-> s = '0'
+(Pdb) l    #输入命令l来查看代码
+  1  ->	s = '0'
+  2  	n = int(s)
+  3  	print 10/n
+[EOF]
+(Pdb) n    #输入命令n可以单步执行代码
+> /home/SETSUNA/Desktop/1.py(2)<module>()
+-> n = int(s)
+(Pdb) n
+> /home/SETSUNA/Desktop/1.py(3)<module>()
+-> print 10/n
+(Pdb) p s    #任何时候都可以输入命令p 变量名来查看变量
+'0'
+(Pdb) p n
+0
+(Pdb) q    #输入命令q结束调试，退出程序
+
+5.pdb.set_trace()
+import pdb
+s = '0'
+n = int(s)
+pdb.set_trace()    #运行到这里会自动暂停
+print 10/n
+
+> /home/SETSUNA/Desktop/1.py(5)<module>()
+-> print 10/n
+(Pdb) p n    #命令p查看变量
+0
+(Pdb) c    #命令c继续运行
+Traceback (most recent call last):
+  File "1.py", line 5, in <module>
+    print 10/n
+ZeroDivisionError: integer division or modulo by zero
+
+6.IDE
+
+C.单元测试
+单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作
+对函数abs()，我们可以编写出以下几个测试用例：
+    1.输入正数，比如1、1.2、0.99，期待返回值与输入相同；
+    2.输入负数，比如-1、-1.2、-0.99，期待返回值与输入相反；
+    3.输入0，期待返回0；
+    4.输入非数值类型，比如None、[]、{}，期待抛出TypeError
+
+
+
