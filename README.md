@@ -223,31 +223,23 @@ AttributeError: 'list' object has no attribute 'add'
 ```
 >3.ORM:Object Relational Mapping，即对象-关系映射，就是把关系数据库的一行映射为一个对象，也就是一个类对应一个表
 ```
-精简的ORM框架
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 ' Simple ORM using metaclass '
-
 __author__ = 'Michael Liao'
-
 class Field(object):
     def __init__(self, name, column_type):
         self.name = name
         self.column_type = column_type
     def __str__(self):
         return '<%s:%s>' % (self.__class__.__name__, self.name)
-
 class StringField(Field):
     def __init__(self, name):
         super(StringField, self).__init__(name, 'varchar(100)')
-
 class IntegerField(Field):
     def __init__(self, name):
         super(IntegerField, self).__init__(name, 'bigint')
-
 class ModelMetaclass(type):
-
     def __new__(cls, name, bases, attrs):
         if name=='Model':
             return type.__new__(cls, name, bases, attrs)
@@ -262,22 +254,17 @@ class ModelMetaclass(type):
         attrs['__mappings__'] = mappings # 保存属性和列的映射关系
         attrs['__table__'] = name # 假设表名和类名一致
         return type.__new__(cls, name, bases, attrs)
-
 class Model(dict):
     __metaclass__ = ModelMetaclass
-
     def __init__(self, **kw):
         super(Model, self).__init__(**kw)
-
     def __getattr__(self, key):
         try:
             return self[key]
         except KeyError:
             raise AttributeError(r"'Model' object has no attribute '%s'" % key)
-
     def __setattr__(self, key, value):
         self[key] = value
-
     def save(self):
         fields = []
         params = []
@@ -290,9 +277,7 @@ class Model(dict):
         print('SQL: %s' % sql)
         print('ARGS: %s' % str(args))
 
-# testing code:
-
-class User(Model):
+class User(Model):    #测试代码
     id = IntegerField('uid')
     name = StringField('username')
     email = StringField('email')
@@ -301,9 +286,10 @@ class User(Model):
 u = User(id=12345, name='Michael', email='test@orm.org', password='my-pwd')
 u.save()
 ```
+
 >4.错误处理方式主要有：
 ```
-#try...expect...finally
+try...expect...finally
 try:
 	print 'try...'
 	r = 10 / int('a')
@@ -322,8 +308,9 @@ ValueError: invalid literal for int() with base 10: 'a'
 finally...
 END
 ```
+
 ```
-#调用堆栈
+调用堆栈
 def foo(s):
 	return 10 / int(s)
 def bar(s):
@@ -343,8 +330,9 @@ Traceback (most recent call last):
     return 10 / int(s)
 ZeroDivisionError: integer division or modulo by zero
 ```
+
 ```
-#记录错误
+记录错误
 
 def foo(s):
 	return 10 / int(s)
@@ -369,9 +357,10 @@ Traceback (most recent call last):
 ZeroDivisionError: integer division or modulo by zero
 END
 ```
+
 >5.调试：print,assert,logging,pdb(命),pdb.set_trace()(命),IDE
 ```
-#pdb.set_trace()
+pdb.set_trace()
 import pdb
 s = '0'
 n = int(s)

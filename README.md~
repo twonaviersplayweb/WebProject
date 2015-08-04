@@ -290,9 +290,7 @@ class Model(dict):
         print('SQL: %s' % sql)
         print('ARGS: %s' % str(args))
 
-# testing code:
-
-class User(Model):
+class User(Model):    #测试代码
     id = IntegerField('uid')
     name = StringField('username')
     email = StringField('email')
@@ -301,9 +299,10 @@ class User(Model):
 u = User(id=12345, name='Michael', email='test@orm.org', password='my-pwd')
 u.save()
 ```
+
 >4.错误处理方式主要有：
 ```
-#try...expect...finally
+try...expect...finally
 try:
 	print 'try...'
 	r = 10 / int('a')
@@ -322,8 +321,9 @@ ValueError: invalid literal for int() with base 10: 'a'
 finally...
 END
 ```
+
 ```
-#调用堆栈
+调用堆栈
 def foo(s):
 	return 10 / int(s)
 def bar(s):
@@ -343,8 +343,9 @@ Traceback (most recent call last):
     return 10 / int(s)
 ZeroDivisionError: integer division or modulo by zero
 ```
+
 ```
-#记录错误
+记录错误
 
 def foo(s):
 	return 10 / int(s)
@@ -369,8 +370,10 @@ Traceback (most recent call last):
 ZeroDivisionError: integer division or modulo by zero
 END
 ```
+
 >5.调试：print,assert,logging,pdb(命),pdb.set_trace()(命),IDE
 ```
+pdb.set_trace()
 import pdb
 s = '0'
 n = int(s)
