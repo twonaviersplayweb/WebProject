@@ -202,7 +202,7 @@ print s.score
 >1.主要学习了元类，错误处理的几种方式以及调试
 
 >2.元类：定义metaclass，就可以创建类，最后创建实例
-```
+```python
 class ListMetaclass(type):
 	def __new__(cls, name, bases, attrs):
 		attrs['add'] = lambda self, value :self.append(value)
@@ -223,7 +223,7 @@ Traceback (most recent call last):
 AttributeError: 'list' object has no attribute 'add'
 ```
 >3.ORM:Object Relational Mapping，即对象-关系映射，就是把关系数据库的一行映射为一个对象，也就是一个类对应一个表
-```
+```python
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ' Simple ORM using metaclass '
@@ -287,7 +287,7 @@ u.save()
 ```
 
 >4.错误处理方式主要有：
-```
+```python
 try:
 	print 'try...'
 	r = 10 / int('a')
@@ -352,7 +352,7 @@ END
 ```
 
 >5.调试：print,assert,logging,pdb(命),pdb.set_trace()(命),IDE
-```
+```python
 import pdb
 s = '0'
 n = int(s)
