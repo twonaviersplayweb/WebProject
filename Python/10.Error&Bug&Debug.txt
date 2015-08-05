@@ -280,5 +280,144 @@ C.单元测试
     3.输入0，期待返回0；
     4.输入非数值类型，比如None、[]、{}，期待抛出TypeError
 
+1.代码示例
+源码：
+class Dict(dict):    #mydict.py
+	def __init__(self, **kw):
+		super(Dict, self).__init__(**kw)
+	def __getattr__(self, key):
+		try:
+			return self [key]
+		except KeyError:
+			raise AttributeError(r" 'Dcit' object has no attribute '%s' " % key)			
+	def __setattr__(self, key, value):
+		self [key] = value
 
+单元测试：
+import unittest    #mydict_test.py
+from mydict import Dict
+class TestDict(unittest.TestCase):
+	def test_init(self):    #以test开头的方法就是测试方法，不以test开头的方法不被认为是测试方法，测试的时候不会被执行
+		d = Dict(a = 1, b = 'test')
+		self.assertEquals(d.a, 1)
+		self.assertEquals(d.b, 'test')
+		self.assertTrue(isinstance(d, dict))
+	def test_key(self):    #对每一类测试都需要编写一个test_xxx()方法
+		d = Dict()
+		d['key'] = 'value'
+		self.assertEquals(d.key, 'value')
+	def test_attr(self):
+		d = Dict()
+		d.key = 'value'
+		self.assertTrue('key' in d)
+		self.assertEquals(d['key'], 'value')
+	def test_keyerror(self):
+		d = Dict()
+		with self.assertRaises(KeyError):
+			value = d['empty']
+	def test_attrerror(self):
+		d = Dict()
+		with self.assertRaises(AttributeError):
+			value = d.empty
+if __name__ == '__main__':
+	unittest.main()
 
+运行操作：
+[SETSUNA@localhost Desktop]$ python mydict_test.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK
+
+2.setUp&tearDown
+测试需要启动一个数据库，这时，就可以在setUp()方法中连接数据库，在tearDown()方法中关闭数据库，这样，不必在每个测试方法中重复相同的代码
+class TestDict(unittest.TestCase):
+	def setUp(self):
+		print 'setUp...'
+	def tearDown(self):
+		print 'tearDown'
+
+D.文档测试
+re模块
+>>> import re
+>>> m = re.search('(?<=abc)def', 'abcdef')
+>>> m.group(0)
+'def'
+
+编写注释时，写上这样的注释可以明确的告诉函数的调用者该函数的期望输入与输出，并且，Python内置的“文档测试”（doctest）模块可以直接提取注释中的代码并执行测试
+def abs(n):
+	'''
+	Function to get absolute value of number.
+	Example:
+	>>> abs(1)
+	1
+	>>>abs(-1)
+	1
+	>>>abs(0)
+	0
+	'''
+	return n if n >= 0 else (-n)
+
+Dict文档：
+class Dict(dict):
+    '''
+    Simple dict but also support access as x.y style.
+
+    >>> d1 = Dict()
+    >>> d1['x'] = 100
+    >>> d1.x
+    100
+    >>> d1.y = 200
+    >>> d1['y']
+    200
+    >>> d2 = Dict(a=1, b=2, c='3')
+    >>> d2.c
+    '3'
+    >>> d2['empty']
+    Traceback (most recent call last):
+        ...
+    KeyError: 'empty'
+    >>> d2.empty
+    Traceback (most recent call last):
+        ...
+    AttributeError: 'Dict' object has no attribute 'empty'
+    '''
+    def __init__(self, **kw):
+        super(Dict, self).__init__(**kw)
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(r"'Dict' object has no attribute '%s'" % key)
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
+
+把__getattr__()方法注释掉，再运行就会报错：
+
+$ python mydict.py
+**********************************************************************
+File "mydict.py", line 7, in __main__.Dict
+Failed example:
+    d1.x
+Exception raised:
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'Dict' object has no attribute 'x'
+**********************************************************************
+File "mydict.py", line 13, in __main__.Dict
+Failed example:
+    d2.c
+Exception raised:
+    Traceback (most recent call last):
+      ... 
+    AttributeError: 'Dict' object has no attribute 'c'
+**********************************************************************
+
+注意到最后两行代码.当模块正常导入时，doctest不会被执行.只有在命令行运行时，才执行doctest.所以，不必担心doctest会在非测试环境下执行
