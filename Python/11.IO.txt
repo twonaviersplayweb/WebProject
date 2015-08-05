@@ -1,0 +1,191 @@
+IO编程中，Stream（流）是一个很重要的概念，可以把流想象成一个水管，数据就是水管里的水，但是只能单向流动.Input Stream就是数据从外面（磁盘、网络）流进内存，Output Stream就是数据从内存流到外面
+同步和异步的区别就在于是否等待IO执行的结果
+
+A.文件读写
+1.读文件
+要以读文件的模式打开一个文件对象，使用Python内置的open()函数，传入文件名和标示符
+>>> f = open('/home/SETSUNA/Desktop/1.txt', 'r')    #r表示读
+>>> f.read()    #read()读取内容
+'Soft kitty, warm kitty, little ball of fur. \nHappy kitty, sleepy kitty, purr purr purr.'
+>>>f.close()    #close()来关闭文件
+
+with语句来读写文档
+with open('/home/SETSUNA/Desktop/1.txt', 'r') as f :     #避免了f.close()出错
+	print f.read()
+Soft kitty, warm kitty, little ball of fur.
+Happy kitty, sleepy kitty, purr purr purr.
+
+调用read()会一次性读取文件的全部内容，如果文件有10G，内存就爆了，所以，要保险起见，可以反复调用read(size)方法，每次最多读取size个字节的内容.另外，调用readline()可以每次读取一行内容，调用readlines()一次读取所有内容并按行返回list，故要根据需要决定怎么调用
+如果文件很小，read()一次性读取最方便；如果不能确定文件大小，反复调用read(size)比较保险；如果是配置文件，调用readlines()最方便
+
+with open('/home/SETSUNA/Desktop/1.txt', 'r') as f :
+	for line in f.readlines():
+		print(line.strip())
+Soft kitty, warm kitty, little ball of fur.
+Happy kitty, sleepy kitty, purr purr purr.
+
+2.file-like Object
+像open()函数返回的这种有个read()方法的对象，在Python中统称为file-like Object.除了file外，还可以是内存的字节流，网络流，自定义流等等.file-like Object不要求从特定类继承，只要写个read()方法就行.
+StringIO就是在内存中创建的file-like Object，常用作临时缓冲
+
+要读取二进制文件，比如图片、视频等等，用'rb'模式打开文件:
+f = open('/home/SETSUNA/Desktop/1.jpg', 'rb')
+f.open()
+
+要读取非ASCII编码的文本文件，就必须以二进制模式打开，再解码.比如GBK编码的文件:
+f = open('/home/SETSUNA/Desktop/1.txt', 'rb')
+u = f.read().decode('utf-8')    #utf-8改为gbk会乱码
+print u
+道可道,非常道
+名可名,非常名
+
+import codecs    #codecs帮助自动转码
+f = open('/home/SETSUNA/Desktop/1.txt', 'r')
+with codecs.open('/home/SETSUNA/Desktop/1.txt', 'r', 'utf-8'):
+	print f.read()
+道可道,非常道
+名可名,非常名
+
+3.写文件
+f = open('/home/SETSUNA/Desktop/1.txt', 'w')
+f.write('Hello World!')
+f.close()
+
+import codecs    #自动转码
+f = open('/home/SETSUNA/Desktop/1.txt', 'r')
+with codecs.open('/home/SETSUNA/Desktop/1.txt', 'w', 'utf-8') as f:
+	f.write('Small Kitty')
+
+B.操作文件与目录
+1.环境变量
+>>> import os
+>>> os.name
+'posix'
+>>> os.uname()
+('Linux', 'localhost.localdomain', '3.10.0-229.7.2.el7.x86_64', '#1 SMP Tue Jun 23 22:06:11 UTC 2015', 'x86_64')
+>>> os.environ     #环境变量
+{'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'LESSOPEN': '||/usr/bin/lesspipe.sh %s', 'QT_IM_MODULE': 'xim', 'LOGNAME': 'SETSUNA', 'USER': ...}
+>>> os.getenv('PATH')    #获取环境变量的值
+'/usr/lib64/qt-3.3/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/home/SETSUNA/.local/bin:/home/SETSUNA/bin'
+
+2.操作文件和目录
+操作文件和目录的函数一部分放在os模块中，一部分放在os.path模块中
+>>> import os
+>>> os.path.abspath('.')    #查看当前目录的绝对路径
+'/home/SETSUNA'
+>>> os.path.join('/home/SETSUNA', 'test')    #在某个目录下创建一个新目录，首先把新目录的完整路径表示出来
+'/home/SETSUNA/test'
+>>> os.mkdir('/home/SETSUNA/test')    #创建test目录
+>>> os.rmdir('/home/SETSUNA/test')    #删除test目录
+
+合并路径用os.path.join()，会返回：part-1/part-2
+拆分路径用os.path.split():
+>>> import os
+>>> os.path.split('/home/SETSUNA/test/1.txt')    #os.path.split()可以把一个路径拆分为两部分，后一部分总是最后级别的目录或文件名
+('/home/SETSUNA/test', '1.txt')
+>>> os.path.splitext('/home/SETSUNA/1.txt')    #os.path.splitext()可以直接得到文件扩展名
+('/home/SETSUNA/1', '.txt')
+>>> os.rename('1.txt', '1.py')    #修改的是/home/SETSUNA/下的文档
+>>> os.remove('1.py')
+
+shutil模块提供了copyfile()的函数，可以在shutil模块中找到很多实用函数，它们可以看做是os模块的补充
+
+>>> [x for x in os.listdir('.') if os.path.isdir(x)]    #当前目录下的所有目录
+['.mozilla', '.config', '.cache', '.local', '.speech-dispatcher', 'Crash Reports', '5wb0m4wr.default', '.gstreamer-0.10', '.pki', '.mplayer', '.wine', '.vim', '.ssh', 'Desktop', 'Downloads', 'Templates', 'Public', 'Documents', 'Music', 'Pictures', 'Videos', '.gphoto', '.netease-musicbox', '.purple', 'test']
+>>> [x for x in os.listdir('.') if os.path.isfile(x) and os.path.splitext(x)[1]=='.py']    #当前目录下所有的py文件
+[]
+
+切换目录使用到的OS中的相关函数：
+os.sep可以取代操作系统特定的路径分隔符。windows下为 “”
+os.name字符串指示你正在使用的平台。比如对于Windows，它是’nt’，而对于Linux/Unix用户，它是’posix’。
+os.getcwd()函数得到当前工作目录，即当前Python脚本工作的目录路径。
+os.getenv()获取一个环境变量，如果没有返回none
+os.putenv(key, value)设置一个环境变量值
+os.listdir(path)返回指定目录下的所有文件和目录名。
+os.remove(path)函数用来删除一个文件。
+os.system(command)函数用来运行shell命令。
+os.linesep字符串给出当前平台使用的行终止符。例如，Windows使用’rn’，Linux使用’n’而Mac使用’r’。
+os.path.split(p)函数返回一个路径的目录名和文件名。
+os.path.isfile()和os.path.isdir()函数分别检验给出的路径是一个文件还是目录。
+os.path.exists()函数用来检验给出的路径是否真地存在
+os.curdir:返回当前目录（’.’)
+os.chdir(dirname):改变工作目录到dirname
+os.path.getsize(name):获得文件大小，如果name是目录返回0L
+os.path.abspath(name):获得绝对路径
+os.path.normpath(path):规范path字符串形式
+os.path.splitext():分离文件名与扩展名
+os.path.join(path,name):连接目录与文件名或目录
+os.path.basename(path):返回文件名
+os.path.dirname(path):返回文件路径
+
+C.序列化
+1.pickle
+把变量从内存中变成可存储或传输的过程称之为序列化，在Python中叫pickling，在其他语言中也被称之为serialization，marshalling，flattening等
+Python提供两个模块来实现序列化：cPickle和pickle，cPickle是C语言写的，速度快，pickle是纯Python写的，速度慢
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
+
+命令行中：
+>>> import pickle
+>>> d = dict(name = 'Bob', age = 20, score = 88)
+>>> pickle.dumps(d)    #pickle.dumps()方法把任意对象序列化成一个str
+"(dp0\nS'age'\np1\nI20\nsS'score'\np2\nI88\nsS'name'\np3\nS'Bob'\np4\ns."
+>>> f = open('dump.txt', 'wb')    #pickle.dump()把对象序列化后写入一个file-like Object
+>>> pickle.dump(d, f)
+>>> f.close()
+>>> f = open('dump.txt', 'rb')
+>>> d = pickle.load(f)    #pickle.loads()方法反序列化出对象
+>>> f.close()
+>>> d    #这个变量和原来的变量是完全不相干的对象，它们只是内容相同而已
+{'age': 20, 'score': 88, 'name': 'Bob'}
+
+2.JSON
+要在不同的编程语言之间传递对象，就必须把对象序列化为标准格式,JSON表示出来的是一个字符串，可以被所有语言读取，JSON不仅是标准格式，并且比XML更快，而且可以直接在Web页面中读取，非常方便.
+
+JSON表示的对象就是标准的JavaScript语言的对象，JSON和Python内置的数据类型对应如下：
+JSON类型       Python类型
+{} 	        dict
+[] 	        list
+"string" 	'str'或u'unicode'
+1234.56 	int或float
+true/false 	True/False
+null 	        None
+
+>>> import json
+>>> d = dict(name='Bob',age=20, score=88)
+>>> json.dumps(d)    #dumps()方法返回一个str，内容就是标准的JSON
+'{"age": 20, "score": 88, "name": "Bob"}'
+>>> json_str = '{"age": 20, "score": 88, "name": "Bob"}'
+>>> json.loads(json_str)    #要把JSON反序列化为Python对象，用loads()或者对应的load()方法，前者把JSON的字符串反序列化，后者从file-like Object中读取字符串并反序列化
+{u'age': 20, u'score': 88, u'name': u'Bob'}    #反序列化得到的所有字符串对象默认都是unicode而不是str
+
+import json
+class Student(object):
+	def __init__(self, name, age,score):
+		self.name = name
+		self.age = age
+		self.score = score
+def student2dict(std):
+		return {
+		'name' : std.name ,
+		'age' : std.age ,
+		'score' : std.score
+		}
+s = Student('Bob', 20 , 88)
+print(json.dumps(s, default = student2dict))
+print(json.dumps(s, default=lambda obj: obj.__dict__))    #推荐！把任意class的实例变为dict,通常class的实例都有一个__dict__属性，它就是一个dict，用来存储实例变量.
+                                                           也有少数例外，比如定义了__slots__的class
+{"age": 20, "score": 88, "name": "Bob"}
+{"age": 20, "score": 88, "name": "Bob"}
+
+如果要把JSON反序列化为一个Student对象实例，loads()方法首先转换出一个dict对象，然后，我们传入的object_hook函数负责把dict转换为Student实例：
+def dict2student(d):
+    return Student(d['name'], d['age'], d['score'])
+json_str = '{"age": 20, "score": 88, "name": "Bob"}'
+print(json.loads(json_str, object_hook=dict2student))
+运行结果如下：
+<__main__.Student object at 0x10cd3c190>
+打印出的是反序列化的Student实例对象.
+
