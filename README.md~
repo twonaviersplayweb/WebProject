@@ -200,8 +200,9 @@ print s.score
 2015.08.04
 ----------
 >1.主要学习了元类，错误处理的几种方式以及调试
+
 >2.元类：定义metaclass，就可以创建类，最后创建实例
-```
+```python
 class ListMetaclass(type):
 	def __new__(cls, name, bases, attrs):
 		attrs['add'] = lambda self, value :self.append(value)
@@ -222,7 +223,7 @@ Traceback (most recent call last):
 AttributeError: 'list' object has no attribute 'add'
 ```
 >3.ORM:Object Relational Mapping，即对象-关系映射，就是把关系数据库的一行映射为一个对象，也就是一个类对应一个表
-```
+```python
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ' Simple ORM using metaclass '
@@ -286,7 +287,7 @@ u.save()
 ```
 
 >4.错误处理方式主要有：
-```
+```python
 try:
 	print 'try...'
 	r = 10 / int('a')
@@ -351,7 +352,7 @@ END
 ```
 
 >5.调试：print,assert,logging,pdb(命),pdb.set_trace()(命),IDE
-```
+```python
 import pdb
 s = '0'
 n = int(s)
@@ -368,3 +369,47 @@ Traceback (most recent call last):
 ZeroDivisionError: integer division or modulo by zero
 ```
 
+2015.08.05
+----------
+>1.主要学习了IO编程，其中包括文件读写，操作文件与目录以及序列化
+>2.文件读写：
+```
+>>> f = open('/home/SETSUNA/Desktop/1.txt', 'r')    #r表示读
+>>> f.read()    #read()读取内容
+'Soft kitty, warm kitty, little ball of fur. \nHappy kitty, sleepy kitty, purr purr purr.'
+>>>f.close()    #close()来关闭文件
+```
+with方式：
+```
+with open('/home/SETSUNA/Desktop/1.txt', 'r') as f :     #避免了f.close()出错
+	print f.read()
+Soft kitty, warm kitty, little ball of fur.
+Happy kitty, sleepy kitty, purr purr purr.
+```
+
+转码：
+```
+import codecs    #codecs帮助自动转码
+f = open('/home/SETSUNA/Desktop/1.txt', 'r')
+with codecs.open('/home/SETSUNA/Desktop/1.txt', 'r', 'utf-8'):
+	print f.read()
+```
+
+写文件：
+```
+import codecs    #自动转码
+f = open('/home/SETSUNA/Desktop/1.txt', 'r')
+with codecs.open('/home/SETSUNA/Desktop/1.txt', 'w', 'utf-8') as f:
+	f.write('Small Kitty')
+```
+
+>3.操作文件与目录
+```
+>>> import os
+>>> os.path.abspath('.')    #查看当前目录的绝对路径
+'/home/SETSUNA'
+>>> os.path.join('/home/SETSUNA', 'test')    #在某个目录下创建一个新目录，首先把新目录的完整路径表示出来
+'/home/SETSUNA/test'
+>>> os.mkdir('/home/SETSUNA/test')    #创建test目录
+>>> os.rmdir('/home/SETSUNA/test')    #删除test目录
+```

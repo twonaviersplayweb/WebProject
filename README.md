@@ -369,3 +369,87 @@ Traceback (most recent call last):
 ZeroDivisionError: integer division or modulo by zero
 ```
 
+2015.08.05
+----------
+>1.主要学习了IO编程，其中包括文件读写，操作文件与目录以及序列化
+>2.文件读写：
+```
+>>> f = open('/home/SETSUNA/Desktop/1.txt', 'r')    #r表示读
+>>> f.read()    #read()读取内容
+'Soft kitty, warm kitty, little ball of fur. \nHappy kitty, sleepy kitty, purr purr purr.'
+>>>f.close()    #close()来关闭文件
+```
+with方式：
+```
+with open('/home/SETSUNA/Desktop/1.txt', 'r') as f :     #避免了f.close()出错
+	print f.read()
+Soft kitty, warm kitty, little ball of fur.
+Happy kitty, sleepy kitty, purr purr purr.
+```
+
+转码：
+```
+import codecs    #codecs帮助自动转码
+f = open('/home/SETSUNA/Desktop/1.txt', 'r')
+with codecs.open('/home/SETSUNA/Desktop/1.txt', 'r', 'utf-8'):
+	print f.read()
+```
+
+写文件：
+```
+import codecs    #自动转码
+f = open('/home/SETSUNA/Desktop/1.txt', 'r')
+with codecs.open('/home/SETSUNA/Desktop/1.txt', 'w', 'utf-8') as f:
+	f.write('Small Kitty')
+```
+
+>3.操作文件与目录
+```
+>>> import os
+>>> os.path.abspath('.')    #查看当前目录的绝对路径
+'/home/SETSUNA'
+>>> os.path.join('/home/SETSUNA', 'test')    #在某个目录下创建一个新目录，首先把新目录的完整路径表示出来
+'/home/SETSUNA/test'
+>>> os.mkdir('/home/SETSUNA/test')    #创建test目录
+>>> os.rmdir('/home/SETSUNA/test')    #删除test目录
+```
+
+>4.pickel
+```
+>>> import pickle
+>>> d = dict(name = 'Bob', age = 20, score = 88)
+>>> pickle.dumps(d)    #pickle.dumps()方法把任意对象序列化成一个str
+"(dp0\nS'age'\np1\nI20\nsS'score'\np2\nI88\nsS'name'\np3\nS'Bob'\np4\ns."
+>>> f = open('dump.txt', 'wb')    #pickle.dump()把对象序列化后写入一个file-like Object
+>>> pickle.dump(d, f)
+>>> f.close()
+>>> f = open('dump.txt', 'rb')
+>>> d = pickle.load(f)    #pickle.loads()方法反序列化出对象
+>>> f.close()
+>>> d    #这个变量和原来的变量是完全不相干的对象，它们只是内容相同而已
+{'age': 20, 'score': 88, 'name': 'Bob'}
+```
+
+>5.JSON
+```
+import json
+class Student(object):
+	def __init__(self, name, age,score):
+		self.name = name
+		self.age = age
+		self.score = score
+def student2dict(std):
+		return {
+		'name' : std.name ,
+		'age' : std.age ,
+		'score' : std.score
+		}
+s = Student('Bob', 20 , 88)
+print(json.dumps(s, default = student2dict))
+print(json.dumps(s, default=lambda obj: obj.__dict__))    #推荐！把任意class的实例变为dict,通常class的实例都有一个__dict__属性，它就是一个dict，用来存储实例变量.
+                                                           也有少数例外，比如定义了__slots__的class
+{"age": 20, "score": 88, "name": "Bob"}
+{"age": 20, "score": 88, "name": "Bob"}
+```
+
+
