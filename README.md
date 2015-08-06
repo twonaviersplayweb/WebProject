@@ -452,4 +452,175 @@ print(json.dumps(s, default=lambda obj: obj.__dict__))    #推荐！把任意cla
 {"age": 20, "score": 88, "name": "Bob"}
 ```
 
+2015.08.06
+----------
+>1.主要学习了多进程，多线程，ThreadLocal,以及分布式进程
 
+>2.多进程主要有两种：fork(),multiprocessing,Pool()
+```
+import os    #fork():普通的函数调用，调用一次，返回一次，fork()调用一次，返回两次，操作系统自动把当前进程（称为父进程）复制了一份（称为子进程），分别在父进程和子进程内返回
+print 'Process (%s) start...' % os.getpid()
+pid = os.fork() 
+if pid == 0:
+	print 'I am child process (%s) and my parent is %s.' % (os.getpid(), os.getppid())
+else :
+	print 'I (%s) just created a child process (%s).' % (os.getpid(), pid)
+Process (20965) start...
+I (20965) just created a child process (20966).
+I am child process (20966) and my parent is 20965.
+```
+
+```
+from multiprocessing import Process    #multiprocessing模块就是跨平台版本的多进程模块
+import os
+def run_proc(name):
+	print 'Run child process %s (%s)... ' % (name, os.getpid())
+if __name__ == '__main__' :
+	print 'Parent process %s.' % os.getpid()
+	p = Process(target = run_proc, args = ('test',))
+	print 'Process will start.'
+	p.start()    #用start()方法启动
+	p.join()    #join()方法可以等待子进程结束后再继续往下运行，通常用于进程间的同步
+	print 'Process end.'
+
+Parent process 7792.
+Process will start.
+Run child process test (7793)... 
+Process end.
+```
+
+```
+from multiprocessing import Pool
+import os, time, random
+def long_time_task(name):
+	print 'Run task %s (%s)... ' % (name, os.getpid())
+	start = time.time()
+	time.sleep(random.random() * 3)
+	end = time.time()
+	print 'Task %s runs %0.2f seconds.' % (name, (end-start))
+
+if __name__ == '__main__' :
+	print 'Parent process %s.' % os.getpid()
+	p = Pool()    #由于Pool的默认大小是CPU的核数，如果Pool(5),则同时运行5个进程
+	for i in range(5):
+		p.apply_async(long_time_task, args = (i, ))
+	print 'Waiting for all subprocess done...'
+	p.close()
+	p.join()
+	print 'All subprocess done.'	
+
+Parent process 8120.
+Waiting for all subprocess done...
+Run task 0 (8121)... 
+Run task 1 (8122)... 
+Run task 2 (8123)... 
+Run task 3 (8124)... 
+Task 2 runs 1.12 seconds.
+Run task 4 (8123)... 
+Task 0 runs 1.51 seconds.
+Task 3 runs 1.61 seconds.
+Task 1 runs 2.48 seconds.
+Task 4 runs 2.73 seconds.
+All subprocess done.
+```
+
+```
+from multiprocessing import Process , Queue    #进程间通信
+import os, time , random
+def write(q):
+	for value in ['A', 'B', 'C'] :
+		print 'Put %s to queue...' % value
+		q.put(value)
+		time.sleep(random.random())
+def read(q):
+	while True:
+		value = q.get(True)
+		print 'Get %s from queue.' % value
+if __name__ == '__main__':
+	q = Queue()
+	pw = Process(target = write, args = (q, ))
+	pr = Process(target = read, args = (q, ))
+	pw.start()
+	pr.start()
+	pw.join()
+	pr.terminate()
+Put A to queue...
+Get A from queue.
+Put B to queue...
+Get B from queue.
+Put C to queue...
+Get C from queue.
+```
+
+>3.多线程：threading, Lock
+```
+import time, threading
+def loop():
+	print 'thread %s is running...' % threading.current_thread().name    #current_thread()函数，它永远返回当前线程的实例
+	n = 0
+	while n < 5 :
+		n = n + 1
+		print 'thread %s >>> %s ' % (threading.current_thread().name, n)
+		time.sleep(1)
+	print 'thread %s ended.' % threading.current_thread().name
+print 'thread %s is running...' % threading.current_thread().name
+t = threading.Thread(target = loop, name = 'LoopThread')
+t.start()
+t.join()
+print 'thread %s ended.' % threading.current_thread().name	
+thread MainThread is running...
+thread LoopThread is running...
+thread LoopThread >>> 1 
+thread LoopThread >>> 2 
+thread LoopThread >>> 3 
+thread LoopThread >>> 4 
+thread LoopThread >>> 5 
+thread LoopThread ended.
+thread MainThread ended.
+```
+
+```
+import time , threading
+balance = 0
+lock = threading.Lock()
+def change_it(n):
+	global balance
+	balance = balance + n 
+	balance = balance - n
+def run_thread(n):
+	for i in range(100000):
+		lock.aquire()
+		try:
+			change_it(n)
+		finally:
+			lock.release()
+		
+t1 = threading.Thread(target = run_thread, args = (5, ))
+t2 = threading.Thread(target = run_thread, args = (8, ))
+t1.start()
+t2.start()
+t1.join()
+t2.join()
+print balance
+```
+
+>4.ThreadLocal
+```
+import threading
+local_school = threading.local()
+def process_student():
+	print 'Hello, %s (in %s)' % (local_school.student, threading.current_thread().name)
+def process_thread(name):
+	local_school.student = name
+	process_student()
+t1 = threading.Thread(target = process_thread, args = ('Alice', ), name = 'Thread-A')
+t2 = threading.Thread(target = process_thread, args = ('Bob', ), name = 'Thread-B')
+t1.start()
+t2.start()
+t1.join()
+t2.join()
+Hello, Alice (in Thread-A)
+Hello, Bob (in Thread-B)
+```
+
+>5.进程与线程：不表
