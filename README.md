@@ -628,3 +628,122 @@ Hello, Bob (in Thread-B)
 2015.08.07
 ----------
 >今天基本没干什么，就回顾了，所以就不上传什么东西了
+
+2015.08.08
+----------
+>1.主要学习了正则表达式以及几个常用内建模块的学习
+>2.正则表达式：
+<li>用\d可以匹配一个数字，\w可以匹配一个字母或数字</li>
+<li>.可以匹配任意字符</li>
+<li>用*表示任意个字符（包括0个），用+表示至少一个字符，用?表示0个或1个字符，用{n}表示n个字符，用{n,m}表示n-m个字符</li>
+<li>用[]表示范围</li>
+<li>A|B可以匹配A或B，所以[P|p]ython可以匹配'Python'或者'python'.</li>
+<li>^表示行的开头，^\d表示必须以数字开头.</li>
+<li>$表示行的结束，\d$表示必须以数字结束.</li>
+>3.re模块：
+```
+import re
+test = raw_input('Please enter sth to use:')
+if re.match(r'^\d{3}\-\d{3,8}$', test ):    #使用r前缀，不用考虑转义的问题
+	print 'OK'
+else:
+	print 'Failed'
+Please enter sth to use:011-4657984
+OK
+```
+
+```
+>>> import re
+>>> re.match(r'^(\d+)(0*)$', '102300').groups()
+('102300', '')
+>>> re.match(r'^(\d+?)(0*)$', '102300').groups()    #加个?就可以让\d+采用非贪婪匹配
+('1023', '00')
+```
+>4.collections:
+```
+from collections import namedtuple    #namedtuple
+Point = namedtuple('Point', ['x', 'y'])
+p = Point(1, 2)
+print p.x
+print p.y
+print isinstance(p, Point)
+print isinstance(p, tuple)
+1
+2
+True
+True
+```
+
+```
+from collections import deque    #deque
+q = deque (['a', 'b', 'c'])
+q.append('x')
+q.appendleft('y')
+print q
+deque(['y', 'a', 'b', 'c', 'x'])
+```
+
+```
+from collections import defaultdict    #defaultdict
+dd = defaultdict(lambda : 'N/A')
+dd['key1'] = 'abc'
+print dd['key1']
+print dd['key2']
+abc
+N/A
+```
+
+```
+from collections import OrderedDict    #OrderedDict
+d = dict([('a', 1), ('b', 2), ('c', 3)])
+print d
+od = OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+print od
+{'a': 1, 'c': 3, 'b': 2}
+OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+```
+
+```
+from collections import Counter    #Counter
+c = Counter()
+for ch in 'programming':
+	c[ch] = c[ch] + 1
+print c
+Counter({'g': 2, 'm': 2, 'r': 2, 'a': 1, 'i': 1, 'o': 1, 'n': 1, 'p': 1})
+```
+
+>5.base64:准备一个包含64个字符的数组,对二进制数据进行处理，每3个字节一组，一共是3x8=24bit，划为4组，每组正好6个bit,得到4个数字作为索引，然后查表，获得相应的4个字符，就是编码后的字符串,Base64编码会把3字节的二进制数据编码为4字节的文本数据，长度增加33%，好处是编码后的文本数据可以在邮件正文、网页等直接显示.
+```
+import base64
+print base64.b64encode('binary\x00string')
+print base64.b64decode('YmluYXJ5AHN0cmluZw==')
+YmluYXJ5AHN0cmluZw==
+binarystring 
+```
+
+>6.struct:解决str和其他二进制数据类型的转换
+```
+>>> import struct
+>>> struct.pack('>I', 10240099)    #pack的第一个参数是处理指令，'>I'：，>表示字节顺序是big-endian，也就是网络序，I表示4字节无符号整数，后面的参数个数要和处理指令一致
+'\x00\x9c@c'
+>>> struct.unpack('>IH', '\xf0\xf0\xf0\xf0\x80\x80')    #>IH的说明，后面的str依次变为I：4字节无符号整数和H：2字节无符号整数
+(4042322160, 32896)
+```
+
+>7.hashlib:通过摘要函数f()对任意长度的数据data计算出固定长度的摘要digest，目的是为了发现原始数据是否被人篡改过.
+```
+import hashlib    #MD5是最常见的摘要算法，速度很快，生成结果是固定的128 bit字节，通常用一个32位的16进制字符串表示
+md5 = hashlib.md5()
+md5.update('how to use md5 in python hashlib')    #若数据量较大，可分割，如md5.update('how to use md5 in ')\md5.update('python hashlib?')
+print md5.hexdigest()
+846014c3556d79e878be15fde5426e8a
+```
+```
+import hashlib    #SHA1的结果是160 bit字节，通常用一个40位的16进制字符串表示
+sha1 = hashlib.sha1()
+sha1.update('how to use sha1 in python hashlib')
+print sha1.hexdigest()
+e9282e41aaf5ef53fd4ca3c191ed1e2546dbf3f2
+```
+
+>8.itertools:count(),cycle(),repeat(),groupby(),chain(),imap()这些个函数基本都是用来迭代运算的
