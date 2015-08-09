@@ -712,4 +712,38 @@ print c
 Counter({'g': 2, 'm': 2, 'r': 2, 'a': 1, 'i': 1, 'o': 1, 'n': 1, 'p': 1})
 ```
 
->5.base64
+>5.base64:准备一个包含64个字符的数组,对二进制数据进行处理，每3个字节一组，一共是3x8=24bit，划为4组，每组正好6个bit,得到4个数字作为索引，然后查表，获得相应的4个字符，就是编码后的字符串,Base64编码会把3字节的二进制数据编码为4字节的文本数据，长度增加33%，好处是编码后的文本数据可以在邮件正文、网页等直接显示.
+```
+import base64
+print base64.b64encode('binary\x00string')
+print base64.b64decode('YmluYXJ5AHN0cmluZw==')
+YmluYXJ5AHN0cmluZw==
+binarystring 
+```
+
+>6.struct:解决str和其他二进制数据类型的转换
+```
+>>> import struct
+>>> struct.pack('>I', 10240099)    #pack的第一个参数是处理指令，'>I'：，>表示字节顺序是big-endian，也就是网络序，I表示4字节无符号整数，后面的参数个数要和处理指令一致
+'\x00\x9c@c'
+>>> struct.unpack('>IH', '\xf0\xf0\xf0\xf0\x80\x80')    #>IH的说明，后面的str依次变为I：4字节无符号整数和H：2字节无符号整数
+(4042322160, 32896)
+```
+
+>7.hashlib:通过摘要函数f()对任意长度的数据data计算出固定长度的摘要digest，目的是为了发现原始数据是否被人篡改过.
+```
+import hashlib    #MD5是最常见的摘要算法，速度很快，生成结果是固定的128 bit字节，通常用一个32位的16进制字符串表示
+md5 = hashlib.md5()
+md5.update('how to use md5 in python hashlib')    #若数据量较大，可分割，如md5.update('how to use md5 in ')\md5.update('python hashlib?')
+print md5.hexdigest()
+846014c3556d79e878be15fde5426e8a
+```
+```
+import hashlib    #SHA1的结果是160 bit字节，通常用一个40位的16进制字符串表示
+sha1 = hashlib.sha1()
+sha1.update('how to use sha1 in python hashlib')
+print sha1.hexdigest()
+e9282e41aaf5ef53fd4ca3c191ed1e2546dbf3f2
+```
+
+>8.itertools:count(),cycle(),repeat(),groupby(),chain(),imap()这些个函数基本都是用来迭代运算的

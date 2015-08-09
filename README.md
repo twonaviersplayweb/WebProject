@@ -747,3 +747,7 @@ e9282e41aaf5ef53fd4ca3c191ed1e2546dbf3f2
 ```
 
 >8.itertools:count(),cycle(),repeat(),groupby(),chain(),imap()这些个函数基本都是用来迭代运算的
+
+2015.08.09
+----------
+>整个大脑处于当机状态，折腾图形库今天，由于升级把Tkinter GUI没跟现在的python链接起来，懒得折腾了，学学看QT的使用......
