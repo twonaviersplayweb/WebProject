@@ -755,3 +755,109 @@ e9282e41aaf5ef53fd4ca3c191ed1e2546dbf3f2
 2015.08.10
 ----------
 >花了一天时间安装软件，PyQt5安装失败，PyQt4安装成功，但在编写程序时导入QtGui失败，后通过PyCharm导入py程序图形界面运行成功，希望安装Eric6，但死在了前一步QScintilla2的安装上，我操啊，一整天啊，现在整个人都处于相当不好的状态......
+
+2015.08.11
+----------
+>1.主要看了下TCP/IP，Email收发邮件编写，以及数据库的简单应用
+>2.TCP编程：
+```
+import socket , time, threading     #服务器端
+def tcplink(sock, addr):
+	print 'Accept new connection from %s:%s...' % addr
+	sock.send('Welcome!')
+	while True:
+		data = sock.recv(1024)
+		time.sleep(1)
+		if data == 'exit' or not data:
+			break
+		sock.send('Hello, %s!' % data)
+	sock.close()
+	print 'Connection from %s:%s clsoed.' % addr
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('127.0.0.1', 9999))
+s.listen(5)
+print 'Waiting for connection...'
+while True:
+	sock, addr = s.accept()
+	t = threading.Thread(target = tcplink, args = (sock, addr))
+	t.start()
+
+import socket    #客户端
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('127.0.0.1', 9999))
+print s.recv(1024)
+for data in ['Michael', 'Tracy', 'Sarah']:
+	s.send(data)
+	print s.recv(1024)
+s.send('exit')
+s.close()
+
+Waiting for connection...    #服务器端运行
+Accept new connection from 127.0.0.1:35985...
+Connection from 127.0.0.1:35985 clsoed.
+
+Welcome!    #客户端运行
+Hello, Michael!
+Hello, Tracy!
+Hello, Sarah!
+```
+>3.UDP编程：
+```
+import socket, time    #服务器端
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    #SOCK_DGRAM指定了这个Socket的类型是UDP
+s.bind(('127.0.0.1', 9999))    #UDP的9999端口与TCP的9999端口可以各自绑定，绑定端口和TCP一样，但是不需要调用listen()方法，而是直接接收来自任何客户端的数据
+print 'Bind UDP  on 9999...'
+while True:
+	data, addr = s.recvfrom(1024)
+	print 'Received from %s:%s.' % addr
+	s.sendto('Hello , %s!' % data, addr)
+
+import socket    #客户端
+s =socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+for data in ['Michael', 'Tracy', 'Sarah']:
+	s.sendto(data, ('127.0.0.1', 9999))    #不需要调用connect()，直接通过sendto()给服务器发数据
+	print s.recv(1024)
+s.close()
+
+Bind UDP  on 9999...    #服务器端运行
+Received from 127.0.0.1:42136.
+Received from 127.0.0.1:42136.
+Received from 127.0.0.1:42136.
+
+Hello , Michael!    #客户端运行
+Hello , Tracy!
+Hello , Sarah!
+```
+
+>4.要编写程序来发送和接收邮件，本质上就是：1.编写MUA把邮件发到MTA，2.编写MUA从MDA上收邮件
+
+发邮件时，MUA和MTA使用的协议就是SMTP：Simple Mail Transfer Protocol，后面的MTA到另一个MTA也是用SMTP协议
+
+收邮件时，MUA和MDA使用的协议有两种：POP：Post Office Protocol，目前版本是3，俗称POP3；IMAP：Internet Message Access Protocol，目前版本是4，优点是不但能取邮件，还可以直接操作MDA上存储的邮件，比如从收件箱移到垃圾箱，等等
+
+>5.SQLite3
+```
+import sqlite3
+conn = sqlite3.connect('test.db')    #数据库文件是test.db,如果文件不存在，会自动在当前目录创建
+cursor = conn.cursor()    #创建一个Cursor
+print cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')    #执行一条SQL语句，创建user表
+print cursor.execute('insert into user (id, name) values (\'1\', \'Michael\')')    #继续执行一条SQL语句，插入一条记录
+print cursor.rowcount    #通过rowcount获得插入的行数
+cursor.close()
+conn.commit()    #提交事务
+conn.close()    #关闭Connection
+
+conn = sqlite3.connect('test.db')    #查询记录
+cursor = conn.cursor()
+print cursor.execute('select * from user where id=?', '1')    #执行查询语句
+values = cursor.fetchall()    #获得查询结果集
+print values
+cursor.close()
+conn.close()
+
+<sqlite3.Cursor object at 0x7f7205bda810>
+<sqlite3.Cursor object at 0x7f7205bda810>
+1
+<sqlite3.Cursor object at 0x7f7205bda880>
+[(u'1', u'Michael')]
+```
