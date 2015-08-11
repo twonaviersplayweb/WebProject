@@ -781,7 +781,6 @@ while True:
 	sock, addr = s.accept()
 	t = threading.Thread(target = tcplink, args = (sock, addr))
 	t.start()
-
 import socket    #客户端
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1', 9999))
@@ -791,11 +790,9 @@ for data in ['Michael', 'Tracy', 'Sarah']:
 	print s.recv(1024)
 s.send('exit')
 s.close()
-
 Waiting for connection...    #服务器端运行
 Accept new connection from 127.0.0.1:35985...
 Connection from 127.0.0.1:35985 clsoed.
-
 Welcome!    #客户端运行
 Hello, Michael!
 Hello, Tracy!
@@ -811,19 +808,16 @@ while True:
 	data, addr = s.recvfrom(1024)
 	print 'Received from %s:%s.' % addr
 	s.sendto('Hello , %s!' % data, addr)
-
 import socket    #客户端
 s =socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 for data in ['Michael', 'Tracy', 'Sarah']:
 	s.sendto(data, ('127.0.0.1', 9999))    #不需要调用connect()，直接通过sendto()给服务器发数据
 	print s.recv(1024)
 s.close()
-
 Bind UDP  on 9999...    #服务器端运行
 Received from 127.0.0.1:42136.
 Received from 127.0.0.1:42136.
 Received from 127.0.0.1:42136.
-
 Hello , Michael!    #客户端运行
 Hello , Tracy!
 Hello , Sarah!
@@ -846,7 +840,6 @@ print cursor.rowcount    #通过rowcount获得插入的行数
 cursor.close()
 conn.commit()    #提交事务
 conn.close()    #关闭Connection
-
 conn = sqlite3.connect('test.db')    #查询记录
 cursor = conn.cursor()
 print cursor.execute('select * from user where id=?', '1')    #执行查询语句
@@ -854,7 +847,6 @@ values = cursor.fetchall()    #获得查询结果集
 print values
 cursor.close()
 conn.close()
-
 <sqlite3.Cursor object at 0x7f7205bda810>
 <sqlite3.Cursor object at 0x7f7205bda810>
 1
