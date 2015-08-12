@@ -853,3 +853,153 @@ conn.close()
 <sqlite3.Cursor object at 0x7f7205bda880>
 [(u'1', u'Michael')]
 ```
+
+2015.08.12
+----------
+>1.主要学习了HTTP协议，WSGI接口，FLASK，以及Jinja2，gevent，完成了Python教程基础知识的笔记任务
+>2.HTTP请求：
+<p>步骤1：浏览器首先向服务器发送HTTP请求，请求包括：</p>
+<p>方法：GET还是POST，GET仅请求资源，POST会附带用户数据；</p>
+<p>路径：/full/url/path；</p>
+<p>域名：由Host头指定：Host: www.sina.com.cn</p>
+<p>以及其他相关的Header；</p>
+<p>如果是POST，那么请求还包括一个Body，包含用户数据.</p>
+<p>步骤2：服务器向浏览器返回HTTP响应，响应包括：</p>
+<p>响应代码：200表示成功，3xx表示重定向，4xx表示客户端发送的请求有错误，5xx表示服务器端处理时发生了错误；</p>
+<p>响应类型：由Content-Type指定；</p>
+<p>以及其他相关的Header；</p>
+<p>通常服务器的HTTP响应会携带内容，也就是有一个Body，包含响应的内容，网页的HTML源码就在Body中.</p>
+<p>步骤3：如果浏览器还需要继续向服务器请求其他资源，比如图片，就再次发出HTTP请求，重复步骤1、2.</p>
+
+>3.WSGI接口：
+```
+def application(environ, start_response):    #hello.py
+    start_response('200 OK', [('Content-Type', 'text/html')])
+    return '<h1>Hello, web!</h1>'
+from wsgiref.simple_server import make_server    #server.py
+from hello import application
+httpd = make_server('', 8000, application)    # 创建一个服务器，IP地址为空，端口是8000，处理函数是application
+print "Serving HTTP on port 8000..."
+httpd.serve_forever() 
+[SETSUNA@localhost Desktop]$ python server.py
+Serving HTTP on port 8000...
+127.0.0.1 - - [12/Aug/2015 18:35:28] "GET / HTTP/1.1" 200 20
+127.0.0.1 - - [12/Aug/2015 18:35:28] "GET /favicon.ico HTTP/1.1" 200 20
+```
+
+>4.WEB框架：
+```
+from flask import Flask    #app.py
+from flask import request
+app = Flask(__name__)
+@app.route('/', methods = ['GET', 'POST'])
+def home():
+	return '<h1>Home</h1>'
+@app.route('/signin', methods = ['GET'])
+def signin_form():
+	return '''<form action="/signin" method = "post">
+	<p><input name = "username"></p>
+	<p><input name = "password" type = "password"></p>
+	<p><button type = "submit">Sign In</button></p>
+	</form>'''
+@app.route('/signin', methods = ['POST'] )
+def signin():
+	if request.form['username'] == 'admin' and request.form['password'] == 'password':
+		return '<h3>Hello ,admin!</h3>'
+	return '<h3>Bad username or password.</h3>'
+if __name__ == '__main__':
+	app.run()
+[SETSUNA@localhost Desktop]$ sudo python app.py
+[sudo] password for SETSUNA: 
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)    #浏览器中输入http://localhost:5000/，显示Home
+127.0.0.1 - - [12/Aug/2015 19:02:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2015 19:02:46] "GET /favicon.ico HTTP/1.1" 404 -    #以上两行为输入第一个地址后终端中所显示
+127.0.0.1 - - [12/Aug/2015 19:02:58] "GET /signin HTTP/1.1" 200 -    #输入http://localhost:5000/signin后终端中显示，浏览器中出现输入登录和密码对话框
+127.0.0.1 - - [12/Aug/2015 19:03:18] "POST /signin HTTP/1.1" 200 -    #正确输入admin,password后显示
+```
+
+>5.Jinja2模板：
+```
+from flask import Flask, request, render_template    #app.py
+app = Flask(__name__)
+@app.route('/', methods = ['GET', 'POST'])
+def home():
+	return render_template('home.html')
+@app.route('/signin', methods = ['GET'])
+def signin_form():
+	return render_template('form.html')
+@app.route('/signin', methods = ['POST'] )
+def signin():
+	username = request.form['username']
+	password = request.form['password']
+	if username == 'admin' and password == 'password':
+		return render_template('signin-ok.html', username = username)
+	return render_template('form.html', message = 'Bad username or password', username = username)
+if __name__ == '__main__':
+	app.run()
+<!DOCTYPE html>    #home.html
+<html>
+<head>
+	<title>Home</title>
+</head>
+<body>
+	<h1 style="font-style:italic">Home</h1>
+</body>
+</html>
+<!DOCTYPE html>    #form.html
+<html>
+<head>
+	<title>Please Sign In</title>
+</head>
+<body>
+	{% if message %}
+	<p style="color:red">{{message}}</p>
+	{% endif %}
+	<form action="/signin" method="post">
+		<legend>Please sign in:</legend>
+		<p><input name="username" placeholder="Username" value="{{username}}"></p>
+		<p><input name="password" placeholder="Password" type="password"></p>
+		<p><button type="submit">Sign In</button></p>
+	</form>
+</body>
+</html>
+<!DOCTYPE html>    #signin-ok.html
+<html>
+<head>
+	<title>Welcome, {{username}}</title>
+</head>
+<body>
+	<p>Welcome,{{username}}!</p>
+</body>
+</html>
+[SETSUNA@localhost Desktop]$ sudo python app.py
+[sudo] password for SETSUNA: 
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+127.0.0.1 - - [12/Aug/2015 19:49:06] "GET / HTTP/1.1" 200 -    #浏览器中输入http://127.0.0.1:5000/，显示Home
+127.0.0.1 - - [12/Aug/2015 19:50:04] "GET /signin HTTP/1.1" 200 -    #输入http://127.0.0.1:5000/signin，显示登录框
+127.0.0.1 - - [12/Aug/2015 19:50:39] "POST /signin HTTP/1.1" 200 -    #输入form的admin,password后显示Welcome,admin!
+```
+
+>6.gevent:
+```
+from gevent import monkey;monkey.patch_all()
+import gevent
+import urllib2
+def f(url):
+	print('GET: %s' % url)
+	resp = urllib2.urlopen(url)
+	data = resp.read()
+	print('%d bytes received from %s.' % (len(data), url))
+gevent.joinall([
+	gevent.spawn(f, 'https://www.python.org/'),
+	gevent.spawn(f, 'https://www.yahoo.com/'),
+	gevent.spawn(f, 'https://github.com/'),
+])
+[SETSUNA@localhost Desktop]$ sudo python app.py    #3个网络操作是并发执行的，而且结束顺序不同，但只有一个线程
+GET: https://www.python.org/
+GET: https://www.yahoo.com/
+GET: https://github.com/
+47067 bytes received from https://www.python.org/.
+282652 bytes received from https://www.yahoo.com/.
+18189 bytes received from https://github.com/.
+```
