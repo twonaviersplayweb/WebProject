@@ -1,0 +1,117 @@
+A.SQLite
+SQLite是一种嵌入式数据库，它的数据库就是一个文件.由于SQLite本身是C写的，而且体积很小，所以，经常被集成到各种应用程序中，甚至在iOS和Android的App中都可以集成.Python就内置了SQLite3
+
+表是数据库中存放关系数据的集合，一个数据库里面通常都包含多个表，比如学生的表，班级的表，学校的表，等等.表和表之间通过外键关联.
+要操作关系数据库，首先需要连接到数据库，一个数据库连接称为Connection；
+连接到数据库后，需要打开游标，称之为Cursor，通过Cursor执行SQL语句，然后，获得执行结果
+
+import sqlite3
+conn = sqlite3.connect('test.db')    #数据库文件是test.db,如果文件不存在，会自动在当前目录创建
+cursor = conn.cursor()    #创建一个Cursor
+print cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')    #执行一条SQL语句，创建user表
+print cursor.execute('insert into user (id, name) values (\'1\', \'Michael\')')    #继续执行一条SQL语句，插入一条记录
+print cursor.rowcount    #通过rowcount获得插入的行数
+cursor.close()
+conn.commit()    #提交事务
+conn.close()    #关闭Connection
+
+conn = sqlite3.connect('test.db')    #查询记录
+cursor = conn.cursor()
+print cursor.execute('select * from user where id=?', '1')    #执行查询语句
+values = cursor.fetchall()    #获得查询结果集
+print values
+cursor.close()
+conn.close()
+
+<sqlite3.Cursor object at 0x7f7205bda810>
+<sqlite3.Cursor object at 0x7f7205bda810>
+1
+<sqlite3.Cursor object at 0x7f7205bda880>
+[(u'1', u'Michael')]
+
+
+使用Python的DB-API时，只要搞清楚Connection和Cursor对象，打开后一定记得关闭，就可以放心地使用.
+使用Cursor对象执行insert，update，delete语句时，执行结果由rowcount返回影响的行数，就可以拿到执行结果.
+使用Cursor对象执行select语句时，通过featchall()可以拿到结果集.结果集是一个list，每个元素都是一个tuple，对应一行记录.
+
+B.MySQL
+
+import mysql.connector
+conn = mysql.connector.connect(user = 'root', password = '050713', database = 'test', use_unicode = True)
+cursor = conn.cursor()
+cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')
+cursor.execute('insert into user (id, name) values (%s, %s)', ['1', 'Michael'])
+print cursor.rowcount
+
+conn.commit()
+cursor.close()
+
+cursor = conn.cursor()
+cursor.execute('select * from user where id = %s', '1')
+values = cursor.fetchall()
+print values
+cursor.close()
+conn.close()
+
+
+C.使用SQLAlchemy
+
+class User(object):    Object-Relational Mapping，把关系数据库的表结构映射到对象上
+	def __init__(self, id, name):
+		self.id = id
+		self.name = name
+
+[
+	User('1', 'Michael')
+	User('2', 'Bob')
+	User('3', 'Adam')
+]
+
+from sqlalchemy import Column, String, create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+# 创建对象的基类:
+Base = declarative_base()
+
+# 定义User对象:
+class User(Base):
+    # 表的名字:
+    __tablename__ = 'user'
+
+    # 表的结构:
+    id = Column(String(20), primary_key=True)
+    name = Column(String(20))
+
+class Book(Base):
+    __tablename__ = 'book'
+
+    id = Column(String(20), primary_key=True)
+    name = Column(String(20))
+    # “多”的一方的book表是通过外键关联到user表的:
+    user_id = Column(String(20), ForeignKey('user.id'))
+
+# 初始化数据库连接:
+engine = create_engine('mysql+mysqlconnector://root:password@localhost:3306/test')
+# 创建DBSession类型:
+DBSession = sessionmaker(bind=engine)
+
+# 创建session对象:
+session = DBSession()
+# 创建新User对象:
+new_user = User(id='5', name='Bob')
+# 添加到session:
+session.add(new_user)
+# 提交即保存到数据库:
+session.commit()
+
+# 创建Query查询，filter是where条件，最后调用one()返回唯一行，如果调用all()则返回所有行:
+user = session.query(User).filter(User.id=='5').one()
+# 打印类型和对象的name属性:
+print 'type:', type(user)
+print 'name:', user.name
+# 关闭Session:
+session.close()
+
+SQLAlchemy用一个字符串表示连接信息：
+'数据库类型+数据库驱动名称://用户名:口令@机器地址:端口号/数据库名'
