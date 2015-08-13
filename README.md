@@ -1003,3 +1003,7 @@ GET: https://github.com/
 282652 bytes received from https://www.yahoo.com/.
 18189 bytes received from https://github.com/.
 ```
+
+2015.08.13
+----------
+>今天状态不佳，没做什么工作，简单的看了下thinkpython这本书，英文教材，写的挺简单的，可以看看......
